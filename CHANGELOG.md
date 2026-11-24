@@ -1,5 +1,12 @@
 # Changelog
 
+## [0.11.0](https://github.com/KB-Data-Solutions/kb-data-connector-for-woocommerce/compare/v0.10.0...v0.11.0) (2026-11-24)
+
+
+### Features
+
+* send the PDF invoice and credit note number with every invoice ([1ad0046](https://github.com/KB-Data-Solutions/kb-data-connector-for-woocommerce/commit/1ad0046de31aea1c12760ca1b08ce19651da69ea))
+
 ## [0.10.0](https://github.com/KB-Data-Solutions/kb-data-connector-for-woocommerce/compare/v0.9.0...v0.10.0) (2026-11-24)
 
 
