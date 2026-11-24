@@ -72,8 +72,9 @@ class OrderSyncService
 
         try {
             $mapper = new OrderMapper(new VatNumberResolver($integration->vatNumberMetaKey()));
-            $document = $integration->attachPdfInvoice() ? (new InvoicePdfResolver())->resolve($order) : null;
-            $invoiceRequest = $mapper->toInvoiceRequest($order, $document);
+            $pdf = new InvoicePdfResolver();
+            $document = $integration->attachPdfInvoice() ? $pdf->resolve($order) : null;
+            $invoiceRequest = $mapper->toInvoiceRequest($order, $document, $pdf->invoiceNumber($order, $integration->attachPdfInvoice()));
             $idempotencyKey = self::idempotencyKey('wc-order-'.$order->get_id(), $invoiceRequest);
 
             $debtor = $client->debtors()->create($invoiceRequest->debtor, $idempotencyKey.'-debtor');
@@ -125,8 +126,9 @@ class OrderSyncService
 
         try {
             $mapper = new OrderMapper(new VatNumberResolver($integration->vatNumberMetaKey()));
-            $document = $integration->attachPdfInvoice() ? (new InvoicePdfResolver())->resolveCreditNote($order, $refund) : null;
-            $invoiceRequest = $mapper->toRefundInvoiceRequest($order, $refund, $document);
+            $pdf = new InvoicePdfResolver();
+            $document = $integration->attachPdfInvoice() ? $pdf->resolveCreditNote($order, $refund) : null;
+            $invoiceRequest = $mapper->toRefundInvoiceRequest($order, $refund, $document, $pdf->creditNoteNumber($refund, $integration->attachPdfInvoice()));
             $idempotencyKey = self::idempotencyKey('wc-order-'.$order->get_id().'-refund-'.$refund->get_id(), $invoiceRequest);
 
             $debtor = $client->debtors()->create($invoiceRequest->debtor, $idempotencyKey.'-debtor');

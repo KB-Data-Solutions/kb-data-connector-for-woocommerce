@@ -25,7 +25,7 @@ final class OrderMapper
 
     public function __construct(private readonly VatNumberResolver $vatNumbers = new VatNumberResolver()) {}
 
-    public function toInvoiceRequest(WC_Order $order, ?DocumentUpload $document): CreateInvoiceRequest
+    public function toInvoiceRequest(WC_Order $order, ?DocumentUpload $document, ?string $invoiceNumber = null): CreateInvoiceRequest
     {
         return new CreateInvoiceRequest(
             externalInvoiceId: 'wc-order-'.$order->get_id(),
@@ -40,10 +40,11 @@ final class OrderMapper
             externalOrderId: (string) $order->get_order_number(),
             document: $document,
             paymentMethod: $order->get_payment_method() ?: null,
+            invoiceNumber: $invoiceNumber,
         );
     }
 
-    public function toRefundInvoiceRequest(WC_Order $order, WC_Order_Refund $refund, ?DocumentUpload $document): CreateInvoiceRequest
+    public function toRefundInvoiceRequest(WC_Order $order, WC_Order_Refund $refund, ?DocumentUpload $document, ?string $invoiceNumber = null): CreateInvoiceRequest
     {
         return new CreateInvoiceRequest(
             externalInvoiceId: 'wc-order-'.$order->get_id().'-refund-'.$refund->get_id(),
@@ -58,6 +59,7 @@ final class OrderMapper
             externalOrderId: (string) $order->get_order_number(),
             document: $document,
             paymentMethod: $order->get_payment_method() ?: null,
+            invoiceNumber: $invoiceNumber,
         );
     }
 

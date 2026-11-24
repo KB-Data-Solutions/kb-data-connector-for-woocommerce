@@ -57,6 +57,34 @@ final class InvoicePdfResolver
         }
     }
 
+    public function invoiceNumber(WC_Order $order, bool $create): ?string
+    {
+        return self::isAvailable() ? $this->documentNumber('invoice', $order, $create) : null;
+    }
+
+    public function creditNoteNumber(WC_Order_Refund $refund, bool $create): ?string
+    {
+        return self::isCreditNoteAvailable() ? $this->documentNumber('credit-note', $refund, $create) : null;
+    }
+
+    private function documentNumber(string $type, WC_Order|WC_Order_Refund $order, bool $create): ?string
+    {
+        try {
+            $document = wcpdf_get_document($type, $order, $create);
+
+            if (!is_object($document) || !method_exists($document, 'get_number')) {
+                return null;
+            }
+
+            $number = $document->get_number();
+            $formatted = is_object($number) && method_exists($number, 'get_formatted') ? $number->get_formatted() : $number;
+
+            return is_scalar($formatted) && trim((string) $formatted) !== '' ? trim((string) $formatted) : null;
+        } catch (Throwable) {
+            return null;
+        }
+    }
+
     private function upload(object $document, string $filename): ?DocumentUpload
     {
         /** @var string|false $path */
