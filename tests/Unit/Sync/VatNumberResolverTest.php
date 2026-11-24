@@ -50,7 +50,7 @@ final class VatNumberResolverTest extends TestCase
             (new VatNumberResolver())->resolve($this->order(['_vat_number' => 'DE123456789', '_billing_vat_number' => 'BE0123456789']));
             self::fail('Conflicting VAT numbers must block mapping.');
         } catch (RuntimeException $exception) {
-            self::assertStringContainsString('verschillende waarden', $exception->getMessage());
+            self::assertStringContainsString('different values', $exception->getMessage());
             self::assertStringNotContainsString('DE123456789', $exception->getMessage());
             self::assertStringNotContainsString('BE0123456789', $exception->getMessage());
         }
@@ -71,7 +71,7 @@ final class VatNumberResolverTest extends TestCase
     public function test_non_text_meta_is_rejected_without_printing_its_contents(): void
     {
         $this->expectException(RuntimeException::class);
-        $this->expectExceptionMessage('geen tekst');
+        $this->expectExceptionMessage('contains no text');
         (new VatNumberResolver())->resolve($this->order(['_vat_number' => ['private-value']]));
     }
 

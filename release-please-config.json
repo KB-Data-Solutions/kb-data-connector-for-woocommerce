@@ -4,14 +4,14 @@
     "packages": {
         ".": {
             "release-type": "simple",
-            "package-name": "kb-data-koppeling-voor-woocommerce",
+            "package-name": "kb-data-connector-for-woocommerce",
             "changelog-path": "CHANGELOG.md",
             "include-component-in-tag": false,
             "extra-files": [
                 "version.txt",
                 {
                     "type": "generic",
-                    "path": "kb-data-koppeling-voor-woocommerce.php"
+                    "path": "kb-data-connector-for-woocommerce.php"
                 },
                 {
                     "type": "generic",

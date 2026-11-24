@@ -1,5 +1,5 @@
 {
-    "name": "kb-data-solutions/kb-data-koppeling-voor-woocommerce",
+    "name": "kb-data-solutions/kb-data-connector-for-woocommerce",
     "description": "Synchroniseert WooCommerce-klanten en -facturen naar Minox via KB Data Solutions.",
     "type": "wordpress-plugin",
     "license": "GPL-2.0-or-later",
@@ -46,7 +46,7 @@
         "build": [
             "composer install --no-dev --optimize-autoloader",
             "php-scoper add-prefix --output-dir=build/scoped --force",
-            "@php -r \"copy('kb-data-koppeling-voor-woocommerce.php', 'build/kb-data-koppeling-voor-woocommerce.php');\""
+            "@php -r \"copy('kb-data-connector-for-woocommerce.php', 'build/kb-data-connector-for-woocommerce.php');\""
         ]
     },
     "extra": {

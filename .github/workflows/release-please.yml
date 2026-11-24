@@ -28,7 +28,7 @@ jobs:
     if: ${{ needs.release-please.outputs.release_created == 'true' }}
     runs-on: ubuntu-latest
     env:
-      SLUG: kb-data-koppeling-voor-woocommerce
+      SLUG: kb-data-connector-for-woocommerce
     steps:
       - uses: actions/checkout@v4
         with:
@@ -40,7 +40,7 @@ jobs:
       - name: Assemble plugin
         run: |
           mkdir -p "build/$SLUG"
-          cp -R src composer.json composer.lock "$SLUG.php" readme.txt "build/$SLUG/"
+          cp -R src assets languages composer.json composer.lock "$SLUG.php" readme.txt "build/$SLUG/"
           composer install --working-dir="build/$SLUG" --no-dev --optimize-autoloader --prefer-dist --no-progress
           rm "build/$SLUG/composer.lock"
       - name: Zip

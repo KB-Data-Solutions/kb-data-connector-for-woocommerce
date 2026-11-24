@@ -30,33 +30,36 @@ final class SyncStatusNotices
         }
 
         if (Integration::hasUnsafeBaseUriOverride()) {
-            echo '<div class="notice notice-error"><p><strong>'.esc_html__('Minox Koppeling verstuurt niets: de ingestelde server-URL is onveilig.', 'kb-data-koppeling-voor-woocommerce').'</strong> '
-                .esc_html__('KBDATA_KOPPELING_BASE_URI in wp-config.php moet met https:// beginnen (http:// mag alleen voor localhost). Orders blijven bewaard en worden verstuurd zodra dit is opgelost.', 'kb-data-koppeling-voor-woocommerce')
+            echo '<div class="notice notice-error"><p><strong>'.esc_html__('Minox Connector is not sending anything: the configured server URL is not secure.', 'kb-data-connector-for-woocommerce').'</strong> '
+                .esc_html__('KBDATA_KOPPELING_BASE_URI in wp-config.php must start with https:// (http:// is only allowed for localhost). Orders are kept and sent once this is fixed.', 'kb-data-connector-for-woocommerce')
                 .'</p></div>';
         }
 
         $authError = ConnectionHealth::authError();
         $counts = (new OrderSyncQueue(Integration::instance()))->counts();
-        $link = '<a href="'.esc_url(WizardPage::settingsUrl()).'">'.esc_html__('Bekijk de Minox Koppeling', 'kb-data-koppeling-voor-woocommerce').'</a>';
+        $link = '<a href="'.esc_url(WizardPage::settingsUrl()).'">'.esc_html__('View the Minox Connector', 'kb-data-connector-for-woocommerce').'</a>';
 
         if ($authError !== null) {
-            echo '<div class="notice notice-error"><p><strong>'.esc_html__('Minox Koppeling kan geen verbinding maken met KB Data.', 'kb-data-koppeling-voor-woocommerce').'</strong> '
+            echo '<div class="notice notice-error"><p><strong>'.esc_html__('Minox Connector cannot connect to KB Data.', 'kb-data-connector-for-woocommerce').'</strong> '
                 .esc_html(sprintf(
-                    __('Melding: %s. Controleer de client ID en het secret. Orders blijven bewaard en worden automatisch verstuurd zodra de verbinding weer werkt.', 'kb-data-koppeling-voor-woocommerce'),
+                    /* translators: %s: error message from KB Data */
+                    __('Message: %s. Check the client ID and secret. Orders are kept and sent automatically as soon as the connection works again.', 'kb-data-connector-for-woocommerce'),
                     $authError,
                 )).' '.$link.'</p></div>';
         }
 
         if ($counts['failed'] > 0) {
             echo '<div class="notice notice-error"><p>'.esc_html(sprintf(
-                _n('%d order of terugbetaling kon niet naar Minox worden verstuurd en heeft aandacht nodig.', '%d orders of terugbetalingen konden niet naar Minox worden verstuurd en hebben aandacht nodig.', $counts['failed'], 'kb-data-koppeling-voor-woocommerce'),
+                /* translators: %d: number of orders and refunds */
+                _n('%d order or refund could not be sent to Minox and needs attention.', '%d orders or refunds could not be sent to Minox and need attention.', $counts['failed'], 'kb-data-connector-for-woocommerce'),
                 $counts['failed'],
             )).' '.$link.'</p></div>';
         }
 
         if ($authError === null && $counts['waiting'] > 0) {
             echo '<div class="notice notice-warning"><p>'.esc_html(sprintf(
-                _n('%d order of terugbetaling wacht op verzending naar Minox; de koppeling probeert het automatisch opnieuw.', '%d orders of terugbetalingen wachten op verzending naar Minox; de koppeling probeert het automatisch opnieuw.', $counts['waiting'], 'kb-data-koppeling-voor-woocommerce'),
+                /* translators: %d: number of orders and refunds */
+                _n('%d order or refund is waiting to be sent to Minox; the connector retries automatically.', '%d orders or refunds are waiting to be sent to Minox; the connector retries automatically.', $counts['waiting'], 'kb-data-connector-for-woocommerce'),
                 $counts['waiting'],
             )).' '.$link.'</p></div>';
         }
@@ -67,7 +70,7 @@ final class SyncStatusNotices
         check_admin_referer(self::RETRY_NONCE_ACTION);
 
         if (!current_user_can('manage_woocommerce')) {
-            wp_die(esc_html__('Geen toegang.', 'kb-data-koppeling-voor-woocommerce'));
+            wp_die(esc_html__('Access denied.', 'kb-data-connector-for-woocommerce'));
         }
 
         ConnectionHealth::clearAuthError();
@@ -92,7 +95,7 @@ final class SyncStatusNotices
             || ($eligible && $order->get_meta(OrderSyncService::META_INVOICE_ID) === '');
 
         if ($needsResend) {
-            $actions[self::ORDER_ACTION] = __('Opnieuw naar Minox sturen', 'kb-data-koppeling-voor-woocommerce');
+            $actions[self::ORDER_ACTION] = __('Send to Minox again', 'kb-data-connector-for-woocommerce');
         }
 
         return $actions;
@@ -101,7 +104,7 @@ final class SyncStatusNotices
     public static function retryOrder(WC_Order $order): void
     {
         OrderSyncQueue::retryOrder($order);
-        $order->add_order_note(__('Minox Koppeling: handmatig opnieuw ingepland voor verzending naar Minox.', 'kb-data-koppeling-voor-woocommerce'));
+        $order->add_order_note(__('Minox Connector: manually rescheduled for sending to Minox.', 'kb-data-connector-for-woocommerce'));
     }
 
     private static function onSettingsPage(): bool

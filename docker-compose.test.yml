@@ -14,7 +14,7 @@ services:
       WORDPRESS_CONFIG_EXTRA: "define('KBDATA_KOPPELING_BASE_URI', '${KBDATA_BASE_URI:?Set KBDATA_BASE_URI in .env to the KB Data environment to test against}');"
     volumes:
       - wordpress_data:/var/www/html
-      - .:/var/www/html/wp-content/plugins/kb-data-koppeling-voor-woocommerce
+      - .:/var/www/html/wp-content/plugins/kb-data-connector-for-woocommerce
     depends_on:
       wordpress-mysql:
         condition: service_healthy
@@ -47,7 +47,7 @@ services:
     user: root
     volumes:
       - wordpress_data:/var/www/html
-      - .:/var/www/html/wp-content/plugins/kb-data-koppeling-voor-woocommerce
+      - .:/var/www/html/wp-content/plugins/kb-data-connector-for-woocommerce
     environment:
       WORDPRESS_DB_HOST: wordpress-mysql
       WORDPRESS_DB_NAME: wordpress

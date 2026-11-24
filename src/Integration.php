@@ -58,10 +58,10 @@ final class Integration extends WC_Integration implements IntegrationSettings
     public function __construct()
     {
         $this->id = 'minox_koppeling';
-        $this->method_title = __('Minox Koppeling', 'kb-data-koppeling-voor-woocommerce');
+        $this->method_title = __('Minox Connector', 'kb-data-connector-for-woocommerce');
         $this->method_description = __(
-            'Synchroniseert klanten en facturen automatisch naar Minox.',
-            'kb-data-koppeling-voor-woocommerce',
+            'Sends customers and invoices to Minox automatically.',
+            'kb-data-connector-for-woocommerce',
         );
 
         $this->init_form_fields();
@@ -130,9 +130,9 @@ final class Integration extends WC_Integration implements IntegrationSettings
 
         echo '<h2>'.esc_html($this->get_method_title()).'</h2>';
         echo wp_kses_post(wpautop($this->get_method_description()));
-        echo '<p>'.esc_html__('De instellingen van deze koppeling beheer je op een eigen pagina.', 'kb-data-koppeling-voor-woocommerce').'</p>';
+        echo '<p>'.esc_html__('The settings of this connector are managed on their own page.', 'kb-data-connector-for-woocommerce').'</p>';
         echo '<p><a class="button button-primary" href="'.esc_url(WizardPage::settingsUrl()).'">'
-            .esc_html__('Naar de instellingen van Minox Koppeling', 'kb-data-koppeling-voor-woocommerce').'</a></p>';
+            .esc_html__('Go to the Minox Connector settings', 'kb-data-connector-for-woocommerce').'</a></p>';
     }
 
     public function isConfigured(): bool

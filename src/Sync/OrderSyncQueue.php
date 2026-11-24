@@ -135,7 +135,8 @@ final class OrderSyncQueue
         if (!in_array($order->get_status(), $this->eligibleStatuses(), true)) {
             self::clear($order);
             $order->add_order_note(sprintf(
-                'Minox Koppeling: niet naar Minox verstuurd, de order heeft inmiddels de status "%s".',
+                /* translators: %s: order status */
+                __('Minox Connector: not sent to Minox, the order now has the status "%s".', 'kb-data-connector-for-woocommerce'),
                 $order->get_status(),
             ));
 
@@ -178,12 +179,12 @@ final class OrderSyncQueue
 
         if ($order->get_meta(OrderSyncService::META_INVOICE_ID) === '') {
             if ($order->get_meta(self::META_STATUS) === self::STATUS_FAILED) {
-                self::park($refund, 'De order zelf kon niet naar Minox worden verstuurd.');
+                self::park($refund, __('The order itself could not be sent to Minox.', 'kb-data-connector-for-woocommerce'));
 
                 return;
             }
 
-            $this->handleFailure($refund, SyncOutcome::failed('Wacht tot de order zelf in Minox staat.'), $attempts, self::REFUND_HOOK, [$orderId, $refundId]);
+            $this->handleFailure($refund, SyncOutcome::failed(__('Waiting until the order itself is in Minox.', 'kb-data-connector-for-woocommerce')), $attempts, self::REFUND_HOOK, [$orderId, $refundId]);
 
             return;
         }
@@ -221,7 +222,7 @@ final class OrderSyncQueue
             if (!$order instanceof WC_Order) {
                 continue;
             }
-            $order->add_order_note('Minox Koppeling: deze order was nog niet naar Minox verstuurd en is alsnog ingepland.');
+            $order->add_order_note(__('Minox Connector: this order had not been sent to Minox yet and has now been scheduled.', 'kb-data-connector-for-woocommerce'));
             self::enqueueOrder($order);
         }
     }

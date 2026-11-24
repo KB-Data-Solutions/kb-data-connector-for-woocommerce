@@ -5,6 +5,12 @@
 !src/
 !src/**
 
+!assets/
+!assets/**
+
+!languages/
+!languages/**
+
 !tests/
 !tests/**
 
@@ -16,7 +22,7 @@
 
 !/.gitignore
 
-!/kb-data-koppeling-voor-woocommerce.php
+!/kb-data-connector-for-woocommerce.php
 !/readme.txt
 
 !/composer.json

@@ -37,12 +37,12 @@ final class VatNumberSourceSettingsTest extends TestCase
         $html = VatNumberSourceSettings::render(null, 'vat_number_meta_key');
         self::assertStringContainsString('<details', $html);
         self::assertStringNotContainsString('<details open', $html);
-        self::assertStringContainsString('Geen btw-nummerbron herkend', $html);
-        self::assertStringContainsString('alleen aan consumenten', $html);
+        self::assertStringContainsString('No VAT number source recognised', $html);
+        self::assertStringContainsString('consumers only', $html);
         self::assertStringContainsString('https://woocommerce.com/document/eu-vat-number/', $html);
         self::assertStringContainsString('mailto:info@kbdatasolutions.nl', $html);
-        self::assertStringContainsString('Hulp nodig? Neem contact op', $html);
-        self::assertStringContainsString('niet te vervangen', $html);
+        self::assertStringContainsString('Need help? Get in touch', $html);
+        self::assertStringContainsString('No need to replace it', $html);
         self::assertStringNotContainsString('notice-warning', $html);
     }
 
@@ -53,8 +53,8 @@ final class VatNumberSourceSettingsTest extends TestCase
         $order->shouldNotReceive('get_meta');
         Functions\expect('wc_get_orders')->once()->andReturn([$order]);
         $html = VatNumberSourceSettings::render(null, 'vat_number_meta_key');
-        self::assertStringContainsString('Btw-nummerbron herkend in recente bestellingen', $html);
-        self::assertStringContainsString('geen bewijs', $html);
+        self::assertStringContainsString('VAT number source recognised in recent orders', $html);
+        self::assertStringContainsString('no proof', $html);
         self::assertStringNotContainsString('WooCommerce EU VAT Number', $html);
     }
 
@@ -62,9 +62,9 @@ final class VatNumberSourceSettingsTest extends TestCase
     {
         Functions\expect('wc_get_orders')->never();
         $html = VatNumberSourceSettings::render('_custom_tax_id', 'vat_number_meta_key');
-        self::assertStringContainsString('Expliciete btw-veldnaam ingesteld', $html);
+        self::assertStringContainsString('Explicit VAT field name set', $html);
         self::assertStringContainsString('value="_custom_tax_id"', $html);
-        self::assertStringContainsString('geen ander veld', $html);
+        self::assertStringContainsString('no other field', $html);
     }
 
     public function test_dynamic_field_attributes_and_text_are_escaped(): void

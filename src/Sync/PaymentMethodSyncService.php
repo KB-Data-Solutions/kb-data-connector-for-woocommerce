@@ -60,7 +60,7 @@ final class PaymentMethodSyncService
         try {
             self::syncNow();
         } catch (Throwable) {
-            update_option(self::ERROR_OPTION, 'Betaalmethoden konden nog niet worden doorgestuurd. Er wordt automatisch opnieuw geprobeerd.', false);
+            update_option(self::ERROR_OPTION, __('The payment methods could not be sent yet. This is retried automatically.', 'kb-data-connector-for-woocommerce'), false);
             if ($attempt < 5) {
                 self::schedule($attempt + 1);
             }
@@ -72,7 +72,7 @@ final class PaymentMethodSyncService
     {
         $integration = Integration::instance();
         if (!$integration->isConfigured()) {
-            throw new RuntimeException('De koppeling is nog niet ingesteld.');
+            throw new RuntimeException(__('The connector is not set up yet.', 'kb-data-connector-for-woocommerce'));
         }
         $methods = self::registeredMethods();
         (new self())->sync($integration, $methods);

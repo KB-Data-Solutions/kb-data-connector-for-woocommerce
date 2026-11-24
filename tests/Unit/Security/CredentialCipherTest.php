@@ -65,12 +65,12 @@ final class CredentialCipherTest extends TestCase
 
         $this->assertStringNotContainsString('super-secret', $masked);
         $this->assertStringNotContainsString('this', $masked);
-        $this->assertSame('Ingesteld (verborgen)', $masked);
+        $this->assertSame('Set (hidden)', $masked);
     }
 
     public function test_mask_of_empty_value_shows_not_yet_configured_regardless_of_reveal_tail(): void
     {
-        $this->assertSame('(nog niet ingesteld)', CredentialCipher::mask('', true));
-        $this->assertSame('(nog niet ingesteld)', CredentialCipher::mask('', false));
+        $this->assertSame('(not set yet)', CredentialCipher::mask('', true));
+        $this->assertSame('(not set yet)', CredentialCipher::mask('', false));
     }
 }

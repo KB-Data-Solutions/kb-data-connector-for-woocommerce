@@ -1,9 +1,9 @@
 <?php
 
 /**
- * Plugin Name:       Minox Koppeling voor WooCommerce
+ * Plugin Name:       Minox Connector for WooCommerce
  * Plugin URI:        https://www.kbdatasolutions.nl/
- * Description:       Boekt elke WooCommerce-bestelling automatisch en correct in uw Minox-administratie, inclusief btw-classificatie en factuur. Gebouwd door KB Data Solutions (kbdatasolutions.nl). Vereist een actief KB Data Solutions-account.
+ * Description:       Books every WooCommerce order automatically and correctly in your Minox administration, including VAT classification and invoice. Built by KB Data Solutions (kbdatasolutions.nl). Requires an active KB Data Solutions account.
  * x-release-please-start-version
  * Version:           0.9.0
  * Requires at least: 6.4
@@ -13,7 +13,8 @@
  * Author URI:        https://www.kbdatasolutions.nl/
  * License:           GPL v2 or later
  * License URI:       https://www.gnu.org/licenses/gpl-2.0.html
- * Text Domain:       kb-data-koppeling-voor-woocommerce
+ * Text Domain:       kb-data-connector-for-woocommerce
+ * Domain Path:       /languages
  * Requires Plugins:  woocommerce
  */
 
@@ -38,8 +39,8 @@ if (!file_exists($minoxWcAutoloader)) {
     add_action('admin_notices', function (): void {
         echo '<div class="notice notice-error"><p>';
         echo esc_html__(
-            'Minox Koppeling voor WooCommerce kan niet starten: de Composer-afhankelijkheden zijn niet geïnstalleerd. Dit is een ontwikkelversie, draai "composer install" in de pluginmap.',
-            'kb-data-koppeling-voor-woocommerce',
+            'Minox Connector for WooCommerce cannot start: the Composer dependencies are not installed. This is a development build, run "composer install" in the plugin folder.',
+            'kb-data-connector-for-woocommerce',
         );
         echo '</p></div>';
     });
@@ -48,6 +49,10 @@ if (!file_exists($minoxWcAutoloader)) {
 }
 
 require_once $minoxWcAutoloader;
+
+add_action('init', static function (): void {
+    load_plugin_textdomain('kb-data-connector-for-woocommerce', false, dirname(plugin_basename(__FILE__)).'/languages');
+});
 
 add_action('before_woocommerce_init', static function (): void {
     if (class_exists(\Automattic\WooCommerce\Utilities\FeaturesUtil::class)) {
@@ -60,8 +65,8 @@ add_action('plugins_loaded', static function (): void {
         add_action('admin_notices', function (): void {
             echo '<div class="notice notice-error"><p>';
             echo esc_html__(
-                'Minox Koppeling voor WooCommerce vereist dat WooCommerce actief is.',
-                'kb-data-koppeling-voor-woocommerce',
+                'Minox Connector for WooCommerce requires WooCommerce to be active.',
+                'kb-data-connector-for-woocommerce',
             );
             echo '</p></div>';
         });

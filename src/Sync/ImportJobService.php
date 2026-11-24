@@ -142,7 +142,7 @@ final class ImportJobService
                     $state['refunds_sent'],
                     $state['last_error'],
                 ));
-                $this->finish($state, 'De import is afgerond.');
+                $this->finish($state, __('The import has finished.', 'kb-data-connector-for-woocommerce'));
                 return;
             }
             $client->importJobs()->reportProgress($jobId, new ImportJobProgress(
@@ -153,7 +153,7 @@ final class ImportJobService
                 $state['last_error'],
             ));
         } catch (ConflictException | NotFoundException) {
-            $this->finish($state, 'De import is gestopt (geannuleerd in het portaal).');
+            $this->finish($state, __('The import has stopped (cancelled in the portal).', 'kb-data-connector-for-woocommerce'));
             return;
         } catch (Throwable $exception) {
             $state['last_error'] = $exception->getMessage();

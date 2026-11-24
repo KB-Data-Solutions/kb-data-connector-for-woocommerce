@@ -30,11 +30,11 @@ final class CredentialCipher
     public static function mask(string $value, bool $revealTail): string
     {
         if ($value === '') {
-            return __('(nog niet ingesteld)', 'kb-data-koppeling-voor-woocommerce');
+            return __('(not set yet)', 'kb-data-connector-for-woocommerce');
         }
 
         if (!$revealTail) {
-            return __('Ingesteld (verborgen)', 'kb-data-koppeling-voor-woocommerce');
+            return __('Set (hidden)', 'kb-data-connector-for-woocommerce');
         }
 
         $tail = substr($value, -4);

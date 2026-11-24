@@ -27,13 +27,12 @@ final class WizardPage
 
     private const string PAYMENT_METHODS_NONCE_ACTION = 'minox_wc_sync_payment_methods';
 
-    private const string BRAND_TURQUOISE = '#00D4AA';
 
-    private const string BRAND_DARK = '#3A3A4A';
 
     public static function register(): void
     {
         add_action('admin_menu', [self::class, 'addMenuItem']);
+        add_action('admin_enqueue_scripts', [self::class, 'enqueueAssets']);
         add_action('admin_post_minox_wc_wizard_step', [self::class, 'handleSubmit']);
         add_action('admin_post_minox_wc_settings_save', [self::class, 'handleSettingsSave']);
         add_action('admin_post_minox_wc_sync_payment_methods', [self::class, 'handlePaymentMethodSync']);
@@ -43,8 +42,8 @@ final class WizardPage
     {
         add_submenu_page(
             'woocommerce',
-            __('Minox Koppeling: Setup', 'kb-data-koppeling-voor-woocommerce'),
-            __('Minox Koppeling', 'kb-data-koppeling-voor-woocommerce'),
+            __('Minox Connector: Setup', 'kb-data-connector-for-woocommerce'),
+            __('Minox Connector', 'kb-data-connector-for-woocommerce'),
             'manage_woocommerce',
             self::SLUG,
             [self::class, 'render'],
@@ -69,7 +68,7 @@ final class WizardPage
         check_admin_referer(self::NONCE_ACTION);
 
         if (!current_user_can('manage_woocommerce')) {
-            wp_die(esc_html__('Geen toegang.', 'kb-data-koppeling-voor-woocommerce'));
+            wp_die(esc_html__('Access denied.', 'kb-data-connector-for-woocommerce'));
         }
 
         $step = (int) ($_POST['step'] ?? 1);
@@ -108,7 +107,7 @@ final class WizardPage
         check_admin_referer(self::SETTINGS_NONCE_ACTION);
 
         if (!current_user_can('manage_woocommerce')) {
-            wp_die(esc_html__('Geen toegang.', 'kb-data-koppeling-voor-woocommerce'));
+            wp_die(esc_html__('Access denied.', 'kb-data-connector-for-woocommerce'));
         }
 
         $settingsKey = 'woocommerce_minox_koppeling_settings';
@@ -155,7 +154,7 @@ final class WizardPage
         check_admin_referer(self::PAYMENT_METHODS_NONCE_ACTION);
 
         if (!current_user_can('manage_woocommerce')) {
-            wp_die(esc_html__('Geen toegang.', 'kb-data-koppeling-voor-woocommerce'));
+            wp_die(esc_html__('Access denied.', 'kb-data-connector-for-woocommerce'));
         }
 
         try {
@@ -177,7 +176,6 @@ final class WizardPage
         $integration = Integration::instance();
 
         echo '<div class="wrap minox-wc-wizard">';
-        self::renderStyles();
         self::renderHeader();
 
         if ($integration->isConfigured() && !isset($_GET['step'])) {
@@ -205,35 +203,35 @@ final class WizardPage
     {
         if (isset($_GET['updated'])) {
             echo '<div class="notice notice-success is-dismissible"><p>'
-                .esc_html__('Instellingen opgeslagen.', 'kb-data-koppeling-voor-woocommerce').'</p></div>';
+                .esc_html__('Settings saved.', 'kb-data-connector-for-woocommerce').'</p></div>';
         }
 
         echo '<div class="minox-wc-card">';
-        echo '<h2>'.esc_html__('Instellingen', 'kb-data-koppeling-voor-woocommerce').'</h2>';
-        echo '<p>'.esc_html__('De koppeling met Minox is actief. Hieronder kun je de instellingen aanpassen.', 'kb-data-koppeling-voor-woocommerce').'</p>';
+        echo '<h2>'.esc_html__('Settings', 'kb-data-connector-for-woocommerce').'</h2>';
+        echo '<p>'.esc_html__('The connection with Minox is active. You can change the settings below.', 'kb-data-connector-for-woocommerce').'</p>';
 
         echo '<form method="post" action="'.esc_url(admin_url('admin-post.php')).'">';
         wp_nonce_field(self::SETTINGS_NONCE_ACTION);
         echo '<input type="hidden" name="action" value="minox_wc_settings_save">';
 
-        self::maskedCredentialField('client_id', __('Client ID', 'kb-data-koppeling-voor-woocommerce'), $integration->get_option('client_id'), true);
-        self::maskedCredentialField('client_secret', __('Client Secret', 'kb-data-koppeling-voor-woocommerce'), $integration->get_option('client_secret'), false);
+        self::maskedCredentialField('client_id', __('Client ID', 'kb-data-connector-for-woocommerce'), $integration->get_option('client_id'), true);
+        self::maskedCredentialField('client_secret', __('Client Secret', 'kb-data-connector-for-woocommerce'), $integration->get_option('client_secret'), false);
 
-        echo '<div class="minox-wc-field"><label>'.esc_html__('Factuur versturen bij', 'kb-data-koppeling-voor-woocommerce').'</label>';
+        echo '<div class="minox-wc-field"><label>'.esc_html__('Send the invoice when', 'kb-data-connector-for-woocommerce').'</label>';
         echo '<p><label><input type="radio" name="sync_trigger_status" value="processing" '
             .checked($integration->syncTriggerStatus(), 'processing', false).'> '
-            .esc_html__('In behandeling (betaling ontvangen), aanbevolen', 'kb-data-koppeling-voor-woocommerce').'</label></p>';
+            .esc_html__('Processing (payment received), recommended', 'kb-data-connector-for-woocommerce').'</label></p>';
         echo '<p><label><input type="radio" name="sync_trigger_status" value="completed" '
             .checked($integration->syncTriggerStatus(), 'completed', false).'> '
-            .esc_html__('Afgerond (verzonden/opgehaald)', 'kb-data-koppeling-voor-woocommerce').'</label></p>';
+            .esc_html__('Completed (shipped/picked up)', 'kb-data-connector-for-woocommerce').'</label></p>';
         echo '</div>';
 
-        echo '<div class="minox-wc-field"><label>'.esc_html__('Factuur-PDF meesturen', 'kb-data-koppeling-voor-woocommerce').'</label>';
+        echo '<div class="minox-wc-field"><label>'.esc_html__('Attach invoice PDF', 'kb-data-connector-for-woocommerce').'</label>';
 
         if (InvoicePdfResolver::isAvailable()) {
             echo '<p><label><input type="checkbox" name="attach_pdf_invoice" value="yes" '
                 .checked($integration->attachPdfInvoice(), true, false).'> '
-                .esc_html__('Stuur de factuur-PDF mee als bijlage bij de boeking in Minox', 'kb-data-koppeling-voor-woocommerce').'</label></p>';
+                .esc_html__('Attach the invoice PDF to the booking in Minox', 'kb-data-connector-for-woocommerce').'</label></p>';
 
             if ($integration->attachPdfInvoice() && $integration->syncRefunds()) {
                 self::renderCreditNotePluginMissingNotice();
@@ -249,7 +247,7 @@ final class WizardPage
 
         echo VatNumberSourceSettings::render($integration->vatNumberMetaKey(), 'vat_number_meta_key');
 
-        self::submitButton(__('Instellingen opslaan', 'kb-data-koppeling-voor-woocommerce'));
+        self::submitButton(__('Save settings', 'kb-data-connector-for-woocommerce'));
         echo '</form>';
 
         self::renderSyncHealth();
@@ -257,7 +255,7 @@ final class WizardPage
         self::renderImportStatus();
 
         echo '<p><a href="'.esc_url(self::url(1)).'">'
-            .esc_html__('Verbinding opnieuw instellen (wizard)', 'kb-data-koppeling-voor-woocommerce').'</a></p>';
+            .esc_html__('Set up the connection again (wizard)', 'kb-data-connector-for-woocommerce').'</a></p>';
         echo '</div>';
     }
 
@@ -268,31 +266,35 @@ final class WizardPage
         $authError = ConnectionHealth::authError();
         $lastSuccess = ConnectionHealth::lastSuccessAt();
 
-        echo '<div class="minox-wc-field"><label>'.esc_html__('Verbinding en verzending', 'kb-data-koppeling-voor-woocommerce').'</label>';
+        echo '<div class="minox-wc-field"><label>'.esc_html__('Connection and delivery', 'kb-data-connector-for-woocommerce').'</label>';
 
         if (isset($_GET['sync_retry'])) {
             echo '<div class="notice notice-success inline"><p>'.esc_html(sprintf(
-                _n('%d order of terugbetaling opnieuw ingepland.', '%d orders of terugbetalingen opnieuw ingepland.', absint($_GET['sync_retry']), 'kb-data-koppeling-voor-woocommerce'),
+                /* translators: %d: number of orders and refunds */
+                _n('%d order or refund rescheduled.', '%d orders or refunds rescheduled.', absint($_GET['sync_retry']), 'kb-data-connector-for-woocommerce'),
                 absint($_GET['sync_retry']),
             )).'</p></div>';
         }
 
         if ($authError !== null) {
             echo '<div class="notice notice-error inline"><p>'.esc_html(sprintf(
-                __('KB Data weigert de verbinding: %s. Controleer de client ID en het secret hierboven (en of ze bij deze omgeving horen). Orders blijven bewaard en worden verstuurd zodra de verbinding werkt.', 'kb-data-koppeling-voor-woocommerce'),
+                /* translators: %s: error message from KB Data */
+                __('KB Data refuses the connection: %s. Check the client ID and secret above (and that they belong to this environment). Orders are kept and sent as soon as the connection works.', 'kb-data-connector-for-woocommerce'),
                 $authError,
             )).'</p></div>';
         }
 
         echo '<p>'.esc_html($lastSuccess !== null
             ? sprintf(
-                __('Laatste geslaagde verbinding met KB Data: %s.', 'kb-data-koppeling-voor-woocommerce'),
+                /* translators: %s: date and time */
+                __('Last successful connection with KB Data: %s.', 'kb-data-connector-for-woocommerce'),
                 wp_date('d-m-Y H:i', $lastSuccess),
             )
-            : __('Nog geen geslaagde verbinding met KB Data geregistreerd.', 'kb-data-koppeling-voor-woocommerce')).'</p>';
+            : __('No successful connection with KB Data recorded yet.', 'kb-data-connector-for-woocommerce')).'</p>';
 
         echo '<p>'.esc_html(sprintf(
-            __('Wachtend op verzending: %1$d. Aandacht nodig: %2$d.', 'kb-data-koppeling-voor-woocommerce'),
+            /* translators: 1: number of waiting orders, 2: number of orders that need attention */
+            __('Waiting to be sent: %1$d. Needs attention: %2$d.', 'kb-data-connector-for-woocommerce'),
             $counts['waiting'],
             $counts['failed'],
         )).'</p>';
@@ -303,20 +305,20 @@ final class WizardPage
             foreach ($problems as $order) {
                 echo '<li><a href="'.esc_url($order->get_edit_order_url()).'">'.esc_html('#'.$order->get_order_number()).'</a> — '
                     .esc_html($order->get_meta(OrderSyncQueue::META_STATUS) === OrderSyncQueue::STATUS_FAILED
-                        ? __('aandacht nodig', 'kb-data-koppeling-voor-woocommerce')
-                        : __('wordt opnieuw geprobeerd', 'kb-data-koppeling-voor-woocommerce'))
+                        ? __('needs attention', 'kb-data-connector-for-woocommerce')
+                        : __('being retried', 'kb-data-connector-for-woocommerce'))
                     .': '.esc_html((string) $order->get_meta(OrderSyncQueue::META_ERROR)).'</li>';
             }
             echo '</ul>';
         }
 
-        echo '<p>'.esc_html__('Mislukte verzendingen worden automatisch opnieuw geprobeerd, met steeds langere tussenpozen. Elk uur controleert de koppeling bovendien of er orders zijn gemist.', 'kb-data-koppeling-voor-woocommerce').'</p>';
+        echo '<p>'.esc_html__('Failed deliveries are retried automatically, with growing intervals. Every hour the connector also checks whether any orders were missed.', 'kb-data-connector-for-woocommerce').'</p>';
 
         if ($counts['waiting'] + $counts['failed'] > 0) {
             echo '<form method="post" action="'.esc_url(admin_url('admin-post.php')).'">';
             wp_nonce_field(SyncStatusNotices::RETRY_NONCE_ACTION);
             echo '<input type="hidden" name="action" value="minox_wc_retry_sync">';
-            echo '<p><button type="submit" class="button">'.esc_html__('Nu opnieuw proberen', 'kb-data-koppeling-voor-woocommerce').'</button></p>';
+            echo '<p><button type="submit" class="button">'.esc_html__('Retry now', 'kb-data-connector-for-woocommerce').'</button></p>';
             echo '</form>';
         }
 
@@ -325,29 +327,30 @@ final class WizardPage
 
     private static function renderPaymentMethodSync(): void
     {
-        echo '<div class="minox-wc-field"><label>'.esc_html__('Betaalmethoden', 'kb-data-koppeling-voor-woocommerce').'</label>';
+        echo '<div class="minox-wc-field"><label>'.esc_html__('Payment methods', 'kb-data-connector-for-woocommerce').'</label>';
 
         $result = isset($_GET['payment_methods']) ? sanitize_key((string) $_GET['payment_methods']) : '';
 
         if ($result === 'synced') {
             $count = isset($_GET['count']) ? absint($_GET['count']) : 0;
             echo '<div class="notice notice-success inline"><p>'.esc_html(sprintf(
-                _n('%d betaalmethode doorgestuurd.', '%d betaalmethoden doorgestuurd.', $count, 'kb-data-koppeling-voor-woocommerce'),
+                /* translators: %d: number of payment methods */
+                _n('%d payment method sent.', '%d payment methods sent.', $count, 'kb-data-connector-for-woocommerce'),
                 $count,
             )).'</p></div>';
         } elseif ($result === 'failed') {
             echo '<div class="notice notice-error inline"><p>'
-                .esc_html__('Betaalmethoden konden niet worden doorgestuurd. Controleer de verbinding en probeer het opnieuw.', 'kb-data-koppeling-voor-woocommerce')
+                .esc_html__('The payment methods could not be sent. Check the connection and try again.', 'kb-data-connector-for-woocommerce')
                 .'</p></div>';
         } elseif (($error = PaymentMethodSyncService::lastError()) !== null) {
             echo '<div class="notice notice-warning inline"><p>'.esc_html($error).'</p></div>';
         }
 
-        echo '<p>'.esc_html__('Betaalmethoden worden automatisch doorgestuurd als ze wijzigen. Met deze knop stuur je ze direct door, bijvoorbeeld na het toevoegen van een nieuwe betaalmethode.', 'kb-data-koppeling-voor-woocommerce').'</p>';
+        echo '<p>'.esc_html__('Payment methods are sent automatically when they change. Use this button to send them right away, for example after adding a new payment method.', 'kb-data-connector-for-woocommerce').'</p>';
         echo '<form method="post" action="'.esc_url(admin_url('admin-post.php')).'">';
         wp_nonce_field(self::PAYMENT_METHODS_NONCE_ACTION);
         echo '<input type="hidden" name="action" value="minox_wc_sync_payment_methods">';
-        echo '<p><button type="submit" class="button">'.esc_html__('Betaalmethoden nu doorsturen', 'kb-data-koppeling-voor-woocommerce').'</button></p>';
+        echo '<p><button type="submit" class="button">'.esc_html__('Send payment methods now', 'kb-data-connector-for-woocommerce').'</button></p>';
         echo '</form></div>';
     }
 
@@ -355,14 +358,15 @@ final class WizardPage
     {
         ImportJobService::pollSoon();
 
-        echo '<div class="minox-wc-field"><label>'.esc_html__('Orders importeren', 'kb-data-koppeling-voor-woocommerce').'</label>';
+        echo '<div class="minox-wc-field"><label>'.esc_html__('Import orders', 'kb-data-connector-for-woocommerce').'</label>';
 
         $state = ImportJobService::currentState();
         $last = get_option(ImportJobService::LAST_RESULT_OPTION);
 
         if ($state !== null) {
             echo '<div class="notice notice-info inline"><p>'.esc_html(sprintf(
-                __('Import vanaf %1$s is bezig: %2$d orders en %3$d terugbetalingen verwerkt, %4$d mislukt.', 'kb-data-koppeling-voor-woocommerce'),
+                /* translators: 1: start date, 2: orders processed, 3: refunds processed, 4: failed */
+                __('Import from %1$s in progress: %2$d orders and %3$d refunds processed, %4$d failed.', 'kb-data-connector-for-woocommerce'),
                 $state['from'],
                 $state['orders_sent'],
                 $state['refunds_sent'],
@@ -370,7 +374,8 @@ final class WizardPage
             )).'</p></div>';
         } elseif (is_array($last) && isset($last['message'])) {
             echo '<div class="notice notice-success inline"><p>'.esc_html(sprintf(
-                __('%1$s %2$d orders en %3$d terugbetalingen verwerkt, %4$d mislukt.', 'kb-data-koppeling-voor-woocommerce'),
+                /* translators: 1: result message, 2: orders processed, 3: refunds processed, 4: failed */
+                __('%1$s %2$d orders and %3$d refunds processed, %4$d failed.', 'kb-data-connector-for-woocommerce'),
                 (string) $last['message'],
                 (int) ($last['orders_sent'] ?? 0),
                 (int) ($last['refunds_sent'] ?? 0),
@@ -378,131 +383,37 @@ final class WizardPage
             )).'</p></div>';
         }
 
-        echo '<p>'.esc_html__('Oudere orders importeren vraagt u aan in het KB Data-portaal (Webshop Koppelingen → Orders importeren). De webshop verwerkt de import daarna automatisch op de achtergrond; mislukte orders krijgen een ordernotitie.', 'kb-data-koppeling-voor-woocommerce').'</p>';
+        echo '<p>'.esc_html__('Older orders are imported on request in the KB Data portal (Webshop connections → Import orders). The shop then processes the import in the background; failed orders get an order note.', 'kb-data-connector-for-woocommerce').'</p>';
         echo '</div>';
     }
 
-    private static function renderStyles(): void
+    public static function enqueueAssets(string $hook): void
     {
-        $turq = self::BRAND_TURQUOISE;
-        $dark = self::BRAND_DARK;
-        echo <<<HTML
-            <style>
-                .minox-wc-wizard { max-width: 760px; margin-top: 20px; }
-                .minox-wc-header { display: flex; align-items: center; gap: 14px; margin-bottom: 24px; }
-                .minox-wc-header h1 { margin: 0; font-size: 20px; line-height: 1.3; color: {$dark}; }
-                .minox-wc-header .minox-wc-wordmark-main { font-weight: 800; }
-                .minox-wc-header .minox-wc-wordmark-sub {
-                    display: block; font-size: 10px; font-weight: 700; letter-spacing: .14em;
-                    text-transform: uppercase; color: {$turq}; margin-top: 1px;
-                }
-                .minox-wc-steps { display: flex; gap: 8px; margin-bottom: 20px; }
-                .minox-wc-step {
-                    flex: 1; text-align: center; padding: 10px 8px; border-radius: 6px;
-                    background: #f0f0f1; color: #646970; font-size: 12px; font-weight: 600;
-                    border: 1px solid #dcdcde;
-                }
-                .minox-wc-step.is-active { background: {$turq}; color: {$dark}; border-color: {$turq}; }
-                .minox-wc-step.is-done { background: #e6faf5; color: #00806a; border-color: #99ecd9; }
-                .minox-wc-card {
-                    background: #fff; border: 1px solid #dcdcde; border-radius: 8px;
-                    padding: 28px 32px; box-shadow: 0 1px 2px rgba(0,0,0,0.04);
-                }
-                .minox-wc-card h2 { margin-top: 0; font-size: 16px; color: {$dark}; }
-                .minox-wc-intro {
-                    background: #f2fcf9; border: 1px solid #c3f3e6; border-radius: 6px;
-                    padding: 18px 20px; margin-bottom: 24px;
-                }
-                .minox-wc-intro p:first-child { margin-top: 0; }
-                .minox-wc-intro p:last-child { margin-bottom: 0; }
-                .minox-wc-intro-title { font-size: 13px; font-weight: 700; color: #00806a; text-transform: uppercase; letter-spacing: .04em; margin: 0 0 8px; }
-                .minox-wc-benefits { list-style: none; margin: 14px 0; padding: 0; }
-                .minox-wc-benefits li { display: flex; gap: 8px; align-items: flex-start; margin-bottom: 8px; font-size: 13px; }
-                .minox-wc-benefits li::before { content: "✓"; color: #00806a; font-weight: 700; flex-shrink: 0; }
-                .minox-wc-field { margin-bottom: 16px; }
-                .minox-wc-field label { display: block; font-weight: 600; margin-bottom: 4px; font-size: 13px; color: {$dark}; }
-                .minox-wc-field input[type=text], .minox-wc-field input[type=password] {
-                    width: 100%; max-width: 420px;
-                }
-                .minox-wc-credential-field .minox-wc-credential-masked {
-                    font-family: monospace; font-size: 14px; margin: 0 0 4px; color: {$dark};
-                }
-                .minox-wc-credential-field .minox-wc-credential-toggle {
-                    position: absolute; width: 1px; height: 1px; opacity: 0; pointer-events: none;
-                }
-                .minox-wc-credential-field .minox-wc-credential-toggle-label {
-                    display: inline-block; font-weight: 400; color: #2271b1; cursor: pointer;
-                    text-decoration: underline; font-size: 13px; margin: 0;
-                }
-                .minox-wc-credential-field .minox-wc-credential-input {
-                    display: none; margin-top: 8px;
-                }
-                .minox-wc-credential-field .minox-wc-credential-toggle:checked ~ .minox-wc-credential-input {
-                    display: block;
-                }
-                .minox-wc-credential-field .minox-wc-credential-toggle:focus ~ .minox-wc-credential-toggle-label {
-                    outline: 2px solid {$turq}; outline-offset: 2px;
-                }
-                .minox-wc-pdf-notice-footnote {
-                    margin-top: 8px !important; padding-top: 8px; border-top: 1px solid rgba(0,0,0,0.08);
-                    font-size: 12px; color: #646970;
-                }
-                .minox-wc-card .button-primary {
-                    background: {$turq}; border-color: {$turq}; color: {$dark}; font-weight: 600; text-shadow: none; box-shadow: none;
-                }
-                .minox-wc-card .button-primary:hover,
-                .minox-wc-card .button-primary:focus {
-                    background: #00bb95; border-color: #00bb95; color: {$dark};
-                }
-                .minox-wc-success-banner {
-                    text-align: center; padding: 8px 0 4px;
-                }
-                .minox-wc-success-banner .minox-wc-check {
-                    display: inline-flex; align-items: center; justify-content: center;
-                    width: 56px; height: 56px; border-radius: 50%;
-                    background: #e6faf5; color: #00806a; font-size: 28px; margin-bottom: 12px;
-                }
-            </style>
-            HTML;
+        if ($hook !== 'woocommerce_page_'.self::SLUG) {
+            return;
+        }
+
+        wp_enqueue_style('minox-wc-admin', plugins_url('assets/admin.css', \MinoxWooCommerce\MINOX_WC_PLUGIN_FILE), [], \MinoxWooCommerce\MINOX_WC_VERSION);
     }
 
     private static function renderHeader(): void
     {
-        $turq = self::BRAND_TURQUOISE;
-        $dark = self::BRAND_DARK;
-
         echo '<div class="minox-wc-header">';
 
-        echo <<<SVG
-            <svg width="40" height="40" viewBox="0 0 50 50" fill="none" aria-hidden="true">
-                <circle cx="12" cy="12" r="3.8" fill="{$dark}" />
-                <circle cx="25" cy="12" r="3.8" fill="{$dark}" opacity="0.18" />
-                <circle cx="38" cy="12" r="3.8" fill="{$dark}" />
-                <circle cx="12" cy="25" r="3.8" fill="{$dark}" />
-                <circle cx="25" cy="25" r="3.8" fill="{$turq}" />
-                <circle cx="38" cy="25" r="3.8" fill="{$dark}" opacity="0.18" />
-                <circle cx="12" cy="38" r="3.8" fill="{$dark}" opacity="0.18" />
-                <circle cx="25" cy="38" r="3.8" fill="{$dark}" opacity="0.18" />
-                <circle cx="38" cy="38" r="3.8" fill="{$dark}" />
-                <line x1="12" y1="12" x2="12" y2="25" stroke="{$dark}" stroke-width="1.2" opacity="0.28" />
-                <line x1="12" y1="25" x2="25" y2="25" stroke="{$turq}" stroke-width="1.2" opacity="0.55" />
-                <line x1="38" y1="12" x2="38" y2="38" stroke="{$dark}" stroke-width="1.2" opacity="0.22" />
-                <line x1="25" y1="25" x2="38" y2="38" stroke="{$dark}" stroke-width="1.2" opacity="0.22" />
-            </svg>
-            SVG;
+        echo '<img src="'.esc_url(plugins_url('assets/logo.svg', \MinoxWooCommerce\MINOX_WC_PLUGIN_FILE)).'" width="40" height="40" alt="">';
 
         echo '<div>';
-        echo '<h1><span class="minox-wc-wordmark-main">'.esc_html__('Minox Koppeling', 'kb-data-koppeling-voor-woocommerce').'</span>';
-        echo '<span class="minox-wc-wordmark-sub">'.esc_html__('KB Data Solutions', 'kb-data-koppeling-voor-woocommerce').'</span></h1>';
+        echo '<h1><span class="minox-wc-wordmark-main">'.esc_html__('Minox Connector', 'kb-data-connector-for-woocommerce').'</span>';
+        echo '<span class="minox-wc-wordmark-sub">'.esc_html__('KB Data Solutions', 'kb-data-connector-for-woocommerce').'</span></h1>';
         echo '</div></div>';
     }
 
     private static function renderStepIndicator(int $step): void
     {
         $labels = [
-            1 => __('Account koppelen', 'kb-data-koppeling-voor-woocommerce'),
-            2 => __('Instellingen', 'kb-data-koppeling-voor-woocommerce'),
-            3 => __('Klaar', 'kb-data-koppeling-voor-woocommerce'),
+            1 => __('Connect account', 'kb-data-connector-for-woocommerce'),
+            2 => __('Settings', 'kb-data-connector-for-woocommerce'),
+            3 => __('Done', 'kb-data-connector-for-woocommerce'),
         ];
 
         echo '<div class="minox-wc-steps">';
@@ -531,7 +442,7 @@ final class WizardPage
             } catch (SdkException $exception) {
                 $connectionError = $exception->getMessage();
             } catch (Throwable) {
-                $connectionError = __('Onbekende fout bij het testen van de verbinding.', 'kb-data-koppeling-voor-woocommerce');
+                $connectionError = __('Unknown error while testing the connection.', 'kb-data-connector-for-woocommerce');
             }
         }
 
@@ -539,41 +450,41 @@ final class WizardPage
             self::renderIntro();
         }
 
-        echo '<h2>'.esc_html__('Koppel je Minox-account', 'kb-data-koppeling-voor-woocommerce').'</h2>';
-        echo '<p>'.esc_html__('Deze gegevens heb je ontvangen van KB Data Solutions bij het aanmaken van je koppeling.', 'kb-data-koppeling-voor-woocommerce').'</p>';
+        echo '<h2>'.esc_html__('Connect your Minox account', 'kb-data-connector-for-woocommerce').'</h2>';
+        echo '<p>'.esc_html__('You received these details from KB Data Solutions when your connection was created.', 'kb-data-connector-for-woocommerce').'</p>';
 
         if ($connectionError !== null) {
             echo '<div class="notice notice-error"><p>'.esc_html($connectionError).'</p></div>';
         } elseif ($integration->isConfigured()) {
-            echo '<div class="notice notice-success"><p>'.esc_html__('Verbinding werkt.', 'kb-data-koppeling-voor-woocommerce').'</p></div>';
+            echo '<div class="notice notice-success"><p>'.esc_html__('Connection works.', 'kb-data-connector-for-woocommerce').'</p></div>';
         }
 
         self::formOpen(1);
-        self::textField('client_id', __('Client ID', 'kb-data-koppeling-voor-woocommerce'), $integration->get_option('client_id'));
-        self::textField('client_secret', __('Client Secret', 'kb-data-koppeling-voor-woocommerce'), $integration->get_option('client_secret'), 'password');
-        self::submitButton(__('Opslaan en testen', 'kb-data-koppeling-voor-woocommerce'));
+        self::textField('client_id', __('Client ID', 'kb-data-connector-for-woocommerce'), $integration->get_option('client_id'));
+        self::textField('client_secret', __('Client Secret', 'kb-data-connector-for-woocommerce'), $integration->get_option('client_secret'), 'password');
+        self::submitButton(__('Save and test', 'kb-data-connector-for-woocommerce'));
         self::formClose();
     }
 
     private static function renderIntro(): void
     {
         echo '<div class="minox-wc-intro">';
-        echo '<p class="minox-wc-intro-title">'.esc_html__('Wat doet deze plugin?', 'kb-data-koppeling-voor-woocommerce').'</p>';
-        echo '<p>'.esc_html__('KB Data Solutions bouwt koppelingen tussen webshops en boekhoudpakketten. Deze plugin boekt elke bestelling uit deze webshop automatisch en correct in uw Minox-administratie.', 'kb-data-koppeling-voor-woocommerce').'</p>';
+        echo '<p class="minox-wc-intro-title">'.esc_html__('What does this plugin do?', 'kb-data-connector-for-woocommerce').'</p>';
+        echo '<p>'.esc_html__('KB Data Solutions builds connections between web shops and accounting software. This plugin books every order from this shop automatically and correctly in your Minox administration.', 'kb-data-connector-for-woocommerce').'</p>';
 
         echo '<ul class="minox-wc-benefits">';
         foreach ([
-            __('Automatische boeking per bestelling, geen handmatig overtypen', 'kb-data-koppeling-voor-woocommerce'),
-            __('OSS- en ICP-btw automatisch herkend en correct toegepast', 'kb-data-koppeling-voor-woocommerce'),
-            __('Factuur automatisch meegeboekt als bijlage', 'kb-data-koppeling-voor-woocommerce'),
+            __('Automatic booking per order, no manual retyping', 'kb-data-connector-for-woocommerce'),
+            __('OSS and intra-community VAT recognised and applied automatically', 'kb-data-connector-for-woocommerce'),
+            __('Invoice attached to the booking automatically', 'kb-data-connector-for-woocommerce'),
         ] as $benefit) {
             echo '<li>'.esc_html($benefit).'</li>';
         }
         echo '</ul>';
 
-        echo '<p>'.esc_html__('Heeft u nog geen Client ID en Secret?', 'kb-data-koppeling-voor-woocommerce').' ';
+        echo '<p>'.esc_html__('No Client ID and Secret yet?', 'kb-data-connector-for-woocommerce').' ';
         echo '<a href="'.esc_url('https://www.kbdatasolutions.nl/woocommerce-koppeling').'" target="_blank" rel="noopener">'
-            .esc_html__('Bekijk hoe de koppeling werkt en vraag toegang aan', 'kb-data-koppeling-voor-woocommerce').'</a>.</p>';
+            .esc_html__('See how the connector works and request access', 'kb-data-connector-for-woocommerce').'</a>.</p>';
         echo '</div>';
     }
 
@@ -581,20 +492,20 @@ final class WizardPage
     {
         $integration = Integration::instance();
 
-        echo '<h2>'.esc_html__('Wanneer moet de factuur verstuurd worden?', 'kb-data-koppeling-voor-woocommerce').'</h2>';
+        echo '<h2>'.esc_html__('When should the invoice be sent?', 'kb-data-connector-for-woocommerce').'</h2>';
 
         self::formOpen(2);
         echo '<p><label><input type="radio" name="sync_trigger_status" value="processing" '
             .checked($integration->syncTriggerStatus(), 'processing', false).'> '
-            .esc_html__('In behandeling (betaling ontvangen), aanbevolen', 'kb-data-koppeling-voor-woocommerce').'</label></p>';
+            .esc_html__('Processing (payment received), recommended', 'kb-data-connector-for-woocommerce').'</label></p>';
         echo '<p><label><input type="radio" name="sync_trigger_status" value="completed" '
             .checked($integration->syncTriggerStatus(), 'completed', false).'> '
-            .esc_html__('Afgerond (verzonden/opgehaald)', 'kb-data-koppeling-voor-woocommerce').'</label></p>';
+            .esc_html__('Completed (shipped/picked up)', 'kb-data-connector-for-woocommerce').'</label></p>';
 
         if (!InvoicePdfResolver::isAvailable()) {
             self::renderPdfPluginMissingNotice();
         } else {
-            echo '<div class="notice notice-success"><p>'.esc_html__('Factuur-PDF-plugin gedetecteerd, PDF\'s worden automatisch meegestuurd.', 'kb-data-koppeling-voor-woocommerce').'</p></div>';
+            echo '<div class="notice notice-success"><p>'.esc_html__('Invoice PDF plugin detected, PDFs are attached automatically.', 'kb-data-connector-for-woocommerce').'</p></div>';
             self::renderCreditNotePluginMissingNotice();
         }
 
@@ -602,7 +513,7 @@ final class WizardPage
 
         echo VatNumberSourceSettings::render($integration->vatNumberMetaKey(), 'vat_number_meta_key');
 
-        self::submitButton(__('Volgende', 'kb-data-koppeling-voor-woocommerce'));
+        self::submitButton(__('Next', 'kb-data-connector-for-woocommerce'));
         self::formClose();
     }
 
@@ -610,10 +521,10 @@ final class WizardPage
     {
         echo '<div class="minox-wc-success-banner">';
         echo '<div class="minox-wc-check">✓</div>';
-        echo '<h2>'.esc_html__('Klaar!', 'kb-data-koppeling-voor-woocommerce').'</h2>';
-        echo '<p>'.esc_html__('Minox Koppeling is ingesteld. Je kunt alles later nog aanpassen via WooCommerce → Minox Koppeling.', 'kb-data-koppeling-voor-woocommerce').'</p>';
+        echo '<h2>'.esc_html__('Done!', 'kb-data-connector-for-woocommerce').'</h2>';
+        echo '<p>'.esc_html__('Minox Connector is set up. You can change everything later via WooCommerce → Minox Connector.', 'kb-data-connector-for-woocommerce').'</p>';
         echo '<p><a class="button button-primary" href="'.esc_url(admin_url('admin.php?page=wc-settings&tab=integration&section=minox_koppeling')).'">'
-            .esc_html__('Naar de instellingen', 'kb-data-koppeling-voor-woocommerce').'</a></p>';
+            .esc_html__('Go to settings', 'kb-data-connector-for-woocommerce').'</a></p>';
         echo '</div>';
     }
 
@@ -645,9 +556,9 @@ final class WizardPage
         echo '<p class="minox-wc-credential-masked">'.esc_html(CredentialCipher::mask($value, $revealTail)).'</p>';
         echo '<input type="checkbox" id="'.esc_attr($toggleId).'" class="minox-wc-credential-toggle">';
         echo '<label for="'.esc_attr($toggleId).'" class="minox-wc-credential-toggle-label">'
-            .esc_html__('Wijzigen', 'kb-data-koppeling-voor-woocommerce').'</label>';
+            .esc_html__('Change', 'kb-data-connector-for-woocommerce').'</label>';
         echo '<input type="text" name="'.esc_attr($name).'" value="" class="regular-text minox-wc-credential-input" '
-            .'placeholder="'.esc_attr__('Laat leeg om de huidige waarde te behouden', 'kb-data-koppeling-voor-woocommerce').'" '
+            .'placeholder="'.esc_attr__('Leave empty to keep the current value', 'kb-data-connector-for-woocommerce').'" '
             .'autocomplete="off">';
         echo '</div>';
     }
@@ -659,11 +570,11 @@ final class WizardPage
 
     private static function renderSyncRefundsField(Integration $integration): void
     {
-        echo '<div class="minox-wc-field"><label>'.esc_html__('Terugbetalingen', 'kb-data-koppeling-voor-woocommerce').'</label>';
+        echo '<div class="minox-wc-field"><label>'.esc_html__('Refunds', 'kb-data-connector-for-woocommerce').'</label>';
         echo '<input type="hidden" name="sync_refunds" value="no">';
         echo '<p><label><input type="checkbox" name="sync_refunds" value="yes" '
             .checked($integration->syncRefunds(), true, false).'> '
-            .esc_html__('Boek terugbetalingen als creditfactuur in Minox', 'kb-data-koppeling-voor-woocommerce').'</label></p>';
+            .esc_html__('Book refunds as credit notes in Minox', 'kb-data-connector-for-woocommerce').'</label></p>';
         echo '</div>';
     }
 
@@ -695,13 +606,15 @@ final class WizardPage
                 .'<p class="minox-wc-pdf-notice-footnote">%s</p>'
                 .'</div>',
             sprintf(
-                esc_html__('Creditfacturen bij terugbetalingen worden alleen als PDF meegestuurd met %s. Zonder die uitbreiding worden terugbetalingen gewoon geboekt in Minox, alleen zonder bijgevoegde creditfactuur.', 'kb-data-koppeling-voor-woocommerce'),
+                /* translators: %s: link to the PDF Invoices & Packing Slips Professional extension */
+                esc_html__('Credit notes for refunds are only attached as PDF with %s. Without that extension refunds are still booked in Minox, just without an attached credit note.', 'kb-data-connector-for-woocommerce'),
                 '<a href="'.esc_url(InvoicePdfResolver::PRO_PLUGIN_URL).'" target="_blank" rel="noopener">PDF Invoices &amp; Packing Slips Professional</a>',
             ),
             sprintf(
-                esc_html__('Gebruikt u een andere plugin voor (credit)facturen? %s, dan kijken we of we die kunnen ondersteunen.', 'kb-data-koppeling-voor-woocommerce'),
+                /* translators: %s: contact link */
+                esc_html__('Using another plugin for invoices or credit notes? %s and we will see whether we can support it.', 'kb-data-connector-for-woocommerce'),
                 '<a href="'.esc_url('mailto:info@kbdatasolutions.nl').'">'
-                    .esc_html__('Laat het ons weten', 'kb-data-koppeling-voor-woocommerce').'</a>',
+                    .esc_html__('Let us know', 'kb-data-connector-for-woocommerce').'</a>',
             ),
         );
     }
@@ -714,13 +627,15 @@ final class WizardPage
                 .'<p class="minox-wc-pdf-notice-footnote">%s</p>'
                 .'</div>',
             sprintf(
-                esc_html__('We hebben op deze webshop nog geen facturen-PDF-plugin gevonden. Installeer %s om automatisch een PDF-factuur mee te sturen naar de boeking in Minox. Zonder zo\'n plugin blijft de boeking gewoon geldig, alleen zonder bijgevoegd document.', 'kb-data-koppeling-voor-woocommerce'),
+                /* translators: %s: link to the PDF Invoices & Packing Slips plugin */
+                esc_html__('No invoice PDF plugin was found on this shop. Install %s to attach a PDF invoice to the booking in Minox automatically. Without such a plugin the booking is still valid, just without an attached document.', 'kb-data-connector-for-woocommerce'),
                 '<a href="'.esc_url('https://wordpress.org/plugins/'.InvoicePdfResolver::RECOMMENDED_PLUGIN_SLUG.'/').'" target="_blank" rel="noopener">PDF Invoices &amp; Packing Slips for WooCommerce</a>',
             ),
             sprintf(
-                esc_html__('Gebruikt u al een andere facturen-plugin en denkt u dat we die ten onrechte niet herkennen? %s, dan kijken we graag met u mee.', 'kb-data-koppeling-voor-woocommerce'),
+                /* translators: %s: contact link */
+                esc_html__('Already using another invoice plugin that we fail to recognise? %s and we are happy to take a look.', 'kb-data-connector-for-woocommerce'),
                 '<a href="'.esc_url('mailto:info@kbdatasolutions.nl').'">'
-                    .esc_html__('Neem dan gerust contact met ons op', 'kb-data-koppeling-voor-woocommerce').'</a>',
+                    .esc_html__('Get in touch with us', 'kb-data-connector-for-woocommerce').'</a>',
             ),
         );
     }

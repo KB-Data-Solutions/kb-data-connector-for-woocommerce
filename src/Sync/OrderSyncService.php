@@ -86,7 +86,8 @@ class OrderSyncService
             PaymentSyncService::schedule($order->get_id());
 
             $order->add_order_note(sprintf(
-                'Minox Koppeling: klant en factuur verzonden naar Minox (status: %s).',
+                /* translators: %s: status returned by KB Data */
+                __('Minox Connector: customer and invoice sent to Minox (status: %s).', 'kb-data-connector-for-woocommerce'),
                 $invoice->rawStatus,
             ));
 
@@ -95,7 +96,11 @@ class OrderSyncService
             $outcome = self::classify($exception, sprintf('Order %d', $order->get_id()));
 
             if ($noteFailure) {
-                $order->add_order_note('Minox Koppeling: synchronisatie mislukt: '.self::noteText($exception, $outcome));
+                $order->add_order_note(sprintf(
+                    /* translators: %s: reason the order could not be sent */
+                    __('Minox Connector: sending failed: %s', 'kb-data-connector-for-woocommerce'),
+                    self::noteText($exception, $outcome),
+                ));
             }
 
             return $outcome;
@@ -133,7 +138,8 @@ class OrderSyncService
             ConnectionHealth::recordSuccess();
 
             $order->add_order_note(sprintf(
-                'Minox Koppeling: creditfactuur voor terugbetaling verzonden naar Minox (status: %s).',
+                /* translators: %s: status returned by KB Data */
+                __('Minox Connector: credit note for refund sent to Minox (status: %s).', 'kb-data-connector-for-woocommerce'),
                 $invoice->rawStatus,
             ));
 
@@ -142,7 +148,11 @@ class OrderSyncService
             $outcome = self::classify($exception, sprintf('Terugbetaling %d (order %d)', $refund->get_id(), $order->get_id()));
 
             if ($noteFailure) {
-                $order->add_order_note('Minox Koppeling: synchronisatie van terugbetaling mislukt: '.self::noteText($exception, $outcome));
+                $order->add_order_note(sprintf(
+                    /* translators: %s: reason the refund could not be sent */
+                    __('Minox Connector: sending the refund failed: %s', 'kb-data-connector-for-woocommerce'),
+                    self::noteText($exception, $outcome),
+                ));
             }
 
             return $outcome;
@@ -168,8 +178,8 @@ class OrderSyncService
 
     private static function noteText(Throwable $exception, SyncOutcome $outcome): string
     {
-        return $exception->getMessage().($outcome->retryable
-            ? ' De koppeling probeert het automatisch opnieuw.'
-            : ' Dit wordt niet automatisch opnieuw geprobeerd; los de oorzaak op en kies bij de orderacties "Opnieuw naar Minox sturen".');
+        return $exception->getMessage().' '.($outcome->retryable
+            ? __('The connector retries automatically.', 'kb-data-connector-for-woocommerce')
+            : __('This is not retried automatically; fix the cause and choose "Send to Minox again" in the order actions.', 'kb-data-connector-for-woocommerce'));
     }
 }

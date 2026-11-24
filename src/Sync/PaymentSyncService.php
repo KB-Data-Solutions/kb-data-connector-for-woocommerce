@@ -36,7 +36,7 @@ final class PaymentSyncService
     public static function orderActions(array $actions, ?WC_Order $order = null): array
     {
         if ($order?->get_payment_method() === 'cod' && $order->get_meta(self::META_PAYMENT_ID) === '') {
-            $actions['minox_confirm_cash_payment'] = __('Volledige contante ontvangst bevestigen (Minox)', 'kb-data-koppeling-voor-woocommerce');
+            $actions['minox_confirm_cash_payment'] = __('Confirm full cash receipt (Minox)', 'kb-data-connector-for-woocommerce');
         }
         return $actions;
     }
@@ -44,7 +44,7 @@ final class PaymentSyncService
     public static function confirmCashPayment(WC_Order $order): void
     {
         if (!current_user_can('manage_woocommerce')) {
-            wp_die('Je hebt geen toestemming om een contante ontvangst te bevestigen.', '', ['response' => 403]);
+            wp_die(esc_html__('You are not allowed to confirm a cash receipt.', 'kb-data-connector-for-woocommerce'), '', ['response' => 403]);
         }
         if ($order->get_payment_method() !== 'cod' || $order->get_meta(self::META_PAYMENT_ID) !== '') {
             return;
@@ -53,7 +53,7 @@ final class PaymentSyncService
             $order->update_meta_data(self::META_CASH_CONFIRMED, (new DateTimeImmutable('now', new DateTimeZone('UTC')))->format(DATE_ATOM));
             $order->update_meta_data('_minox_cash_confirmed_by', (string) get_current_user_id());
             $order->save_meta_data();
-            $order->add_order_note('Minox Koppeling: volledige contante ontvangst handmatig bevestigd. De ingestelde betaalverwerking in het portaal blijft leidend.');
+            $order->add_order_note(__('Minox Connector: full cash receipt confirmed manually. The payment processing configured in the portal remains leading.', 'kb-data-connector-for-woocommerce'));
         }
         self::schedule($order->get_id());
     }
@@ -78,7 +78,7 @@ final class PaymentSyncService
             if ($attempt < 5 && function_exists('as_schedule_single_action')) {
                 as_schedule_single_action(time() + min(3600, 60 * (2 ** $attempt)), self::HOOK, [$orderId, $attempt + 1], self::GROUP, true);
             } else {
-                $order->add_order_note('Minox Koppeling: de betaalbevestiging kon nog niet worden doorgestuurd. Controleer de koppeling; de factuur is niet opnieuw geboekt.');
+                $order->add_order_note(__('Minox Connector: the payment confirmation could not be sent yet. Check the connector; the invoice was not booked again.', 'kb-data-connector-for-woocommerce'));
             }
         }
     }
@@ -141,6 +141,6 @@ final class PaymentSyncService
         $payment = $client->payments()->create($request, 'payment-'.$request->externalPaymentId);
         $order->update_meta_data(self::META_PAYMENT_ID, $payment->id);
         $order->save_meta_data();
-        $order->add_order_note('Minox Koppeling: betaalbevestiging afzonderlijk verstuurd. De verwerking is te volgen in het portaal.');
+        $order->add_order_note(__('Minox Connector: payment confirmation sent separately. Processing can be followed in the portal.', 'kb-data-connector-for-woocommerce'));
     }
 }

@@ -1,0 +1,562 @@
+# Copyright (C) 2026 KB Data Solutions
+# This file is distributed under the GPL v2 or later.
+msgid ""
+msgstr ""
+"Project-Id-Version: Minox Connector for WooCommerce 0.9.0\n"
+"Report-Msgid-Bugs-To: https://wordpress.org/support/plugin/kb-data-connector-for-woocommerce\n"
+"Last-Translator: Automatically generated\n"
+"Language-Team: none\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"POT-Creation-Date: 2026-11-24T08:28:42+00:00\n"
+"PO-Revision-Date: 2026-11-24T08:28:42+00:00\n"
+"X-Generator: WP-CLI 2.12.0\n"
+"X-Domain: kb-data-connector-for-woocommerce\n"
+"Language: nl_NL\n"
+"Plural-Forms: nplurals=2; plural=(n != 1);\n"
+
+#. Plugin Name of the plugin
+#: kb-data-connector-for-woocommerce.php
+msgid "Minox Connector for WooCommerce"
+msgstr "Minox Koppeling voor WooCommerce"
+
+#. Plugin URI of the plugin
+#. Author URI of the plugin
+#: kb-data-connector-for-woocommerce.php
+msgid "https://www.kbdatasolutions.nl/"
+msgstr "https://www.kbdatasolutions.nl/"
+
+#. Description of the plugin
+#: kb-data-connector-for-woocommerce.php
+msgid "Books every WooCommerce order automatically and correctly in your Minox administration, including VAT classification and invoice. Built by KB Data Solutions (kbdatasolutions.nl). Requires an active KB Data Solutions account."
+msgstr "Boekt elke WooCommerce-bestelling automatisch en correct in uw Minox-administratie, inclusief btw-classificatie en factuur. Gebouwd door KB Data Solutions (kbdatasolutions.nl). Vereist een actief KB Data Solutions-account."
+
+#. Author of the plugin
+#: kb-data-connector-for-woocommerce.php src/Setup/WizardPage.php:503
+msgid "KB Data Solutions"
+msgstr "KB Data Solutions"
+
+#: kb-data-connector-for-woocommerce.php:41
+msgid "Minox Connector for WooCommerce cannot start: the Composer dependencies are not installed. This is a development build, run \"composer install\" in the plugin folder."
+msgstr "Minox Koppeling voor WooCommerce kan niet starten: de Composer-afhankelijkheden zijn niet geïnstalleerd. Dit is een ontwikkelversie, draai \"composer install\" in de pluginmap."
+
+#: kb-data-connector-for-woocommerce.php:67
+msgid "Minox Connector for WooCommerce requires WooCommerce to be active."
+msgstr "Minox Koppeling voor WooCommerce vereist dat WooCommerce actief is."
+
+#: src/Integration.php:61 src/Setup/WizardPage.php:47
+#: src/Setup/WizardPage.php:502
+msgid "Minox Connector"
+msgstr "Minox Koppeling"
+
+#: src/Integration.php:62
+msgid "Sends customers and invoices to Minox automatically."
+msgstr "Synchroniseert klanten en facturen automatisch naar Minox."
+
+#: src/Integration.php:133
+msgid "The settings of this connector are managed on their own page."
+msgstr "De instellingen van deze koppeling beheer je op een eigen pagina."
+
+#: src/Integration.php:135
+msgid "Go to the Minox Connector settings"
+msgstr "Naar de instellingen van Minox Koppeling"
+
+#: src/Security/CredentialCipher.php:33
+msgid "(not set yet)"
+msgstr "(nog niet ingesteld)"
+
+#: src/Security/CredentialCipher.php:37
+msgid "Set (hidden)"
+msgstr "Ingesteld (verborgen)"
+
+#: src/Setup/SyncStatusNotices.php:33
+msgid "Minox Connector is not sending anything: the configured server URL is not secure."
+msgstr "Minox Koppeling verstuurt niets: de ingestelde server-URL is onveilig."
+
+#: src/Setup/SyncStatusNotices.php:34
+msgid "KBDATA_KOPPELING_BASE_URI in wp-config.php must start with https:// (http:// is only allowed for localhost). Orders are kept and sent once this is fixed."
+msgstr "KBDATA_KOPPELING_BASE_URI in wp-config.php moet met https:// beginnen (http:// mag alleen voor localhost). Orders blijven bewaard en worden verstuurd zodra dit is opgelost."
+
+#: src/Setup/SyncStatusNotices.php:40
+msgid "View the Minox Connector"
+msgstr "Bekijk de Minox Koppeling"
+
+#: src/Setup/SyncStatusNotices.php:43
+msgid "Minox Connector cannot connect to KB Data."
+msgstr "Minox Koppeling kan geen verbinding maken met KB Data."
+
+#. translators: %s: error message from KB Data
+#: src/Setup/SyncStatusNotices.php:46
+#, php-format
+msgid "Message: %s. Check the client ID and secret. Orders are kept and sent automatically as soon as the connection works again."
+msgstr "Melding: %s. Controleer de client ID en het secret. Orders blijven bewaard en worden automatisch verstuurd zodra de verbinding weer werkt."
+
+#. translators: %d: number of orders and refunds
+#: src/Setup/SyncStatusNotices.php:54
+#, php-format
+msgid "%d order or refund could not be sent to Minox and needs attention."
+msgid_plural "%d orders or refunds could not be sent to Minox and need attention."
+msgstr[0] "%d order of terugbetaling kon niet naar Minox worden verstuurd en heeft aandacht nodig."
+msgstr[1] "%d orders of terugbetalingen konden niet naar Minox worden verstuurd en hebben aandacht nodig."
+
+#. translators: %d: number of orders and refunds
+#: src/Setup/SyncStatusNotices.php:62
+#, php-format
+msgid "%d order or refund is waiting to be sent to Minox; the connector retries automatically."
+msgid_plural "%d orders or refunds are waiting to be sent to Minox; the connector retries automatically."
+msgstr[0] "%d order of terugbetaling wacht op verzending naar Minox; de koppeling probeert het automatisch opnieuw."
+msgstr[1] "%d orders of terugbetalingen wachten op verzending naar Minox; de koppeling probeert het automatisch opnieuw."
+
+#: src/Setup/SyncStatusNotices.php:73 src/Setup/WizardPage.php:72
+#: src/Setup/WizardPage.php:111 src/Setup/WizardPage.php:158
+msgid "Access denied."
+msgstr "Geen toegang."
+
+#: src/Setup/SyncStatusNotices.php:98
+msgid "Send to Minox again"
+msgstr "Opnieuw naar Minox sturen"
+
+#: src/Setup/SyncStatusNotices.php:107
+msgid "Minox Connector: manually rescheduled for sending to Minox."
+msgstr "Minox Koppeling: handmatig opnieuw ingepland voor verzending naar Minox."
+
+#: src/Setup/VatNumberSourceSettings.php:17
+msgid "Optional: B2B sales within the EU (intra-community)"
+msgstr "Optioneel: zakelijke EU-verkopen (ICP)"
+
+#: src/Setup/VatNumberSourceSettings.php:18
+msgid "Selling to consumers only? No action needed. For B2B sales within the EU the VAT number must be available as order data. A recognised field is no proof that the number is valid."
+msgstr "Verkoopt u alleen aan consumenten? Hiervoor is geen actie nodig. Voor zakelijke EU-verkopen moet het btw-nummer als ordergegeven beschikbaar zijn. Een herkend veld is geen bewijs dat het nummer geldig is."
+
+#: src/Setup/VatNumberSourceSettings.php:21
+msgid "Explicit VAT field name set"
+msgstr "Expliciete btw-veldnaam ingesteld"
+
+#: src/Setup/VatNumberSourceSettings.php:22
+msgid "Only this field is used. If an order lacks it, no other field is chosen."
+msgstr "Alleen dit veld wordt gebruikt. Ontbreekt het bij een bestelling, dan wordt geen ander veld gekozen."
+
+#: src/Setup/VatNumberSourceSettings.php:24
+msgid "VAT number source recognised in recent orders"
+msgstr "Btw-nummerbron herkend in recente bestellingen"
+
+#: src/Setup/VatNumberSourceSettings.php:25
+msgid "Known order fields are read automatically. Different non-empty VAT numbers block sending until the right source is chosen."
+msgstr "Bekende ordervelden worden automatisch gelezen. Verschillende niet-lege btw-nummers blokkeren de verzending totdat de juiste bron is gekozen."
+
+#: src/Setup/VatNumberSourceSettings.php:27
+msgid "No VAT number source recognised"
+msgstr "Geen btw-nummerbron herkend"
+
+#: src/Setup/VatNumberSourceSettings.php:28
+msgid "No known field was found in up to twenty recent orders. This does not mean a VAT plugin is missing."
+msgstr "In maximaal twintig recente bestellingen is geen bekend veld gevonden. Dit betekent niet dat een btw-plugin ontbreekt."
+
+#: src/Setup/VatNumberSourceSettings.php:29
+msgid "For B2B sales within the EU, use a validated VAT number field, for example with"
+msgstr "Gebruik voor zakelijke EU-verkopen een gevalideerd btw-nummerveld, bijvoorbeeld met"
+
+#: src/Setup/VatNumberSourceSettings.php:31
+msgid "WooCommerce EU VAT Number"
+msgstr "WooCommerce EU VAT Number"
+
+#: src/Setup/VatNumberSourceSettings.php:32
+msgid "Nothing is installed automatically."
+msgstr "Er wordt niets automatisch geïnstalleerd."
+
+#: src/Setup/VatNumberSourceSettings.php:35
+msgid "Already using another plugin? No need to replace it; we help connect the right order field."
+msgstr "Gebruikt u al een andere plugin? U hoeft die niet te vervangen; we helpen het juiste orderveld te koppelen."
+
+#: src/Setup/VatNumberSourceSettings.php:36
+msgid "Custom VAT field name (optional)"
+msgstr "Afwijkende btw-veldnaam (optioneel)"
+
+#: src/Setup/VatNumberSourceSettings.php:38
+msgid "Leave empty for automatic detection. Only enter the technical order field name, never a VAT number or key. The connector does not change amounts or VAT rates in WooCommerce."
+msgstr "Laat leeg voor automatische herkenning. Vul alleen de technische orderveldnaam in, nooit een btw-nummer of sleutel. De koppeling wijzigt geen bedragen of btw-tarieven in WooCommerce."
+
+#: src/Setup/VatNumberSourceSettings.php:40
+msgid "Need help? Get in touch"
+msgstr "Hulp nodig? Neem contact op"
+
+#: src/Setup/WizardPage.php:46
+msgid "Minox Connector: Setup"
+msgstr "Minox Koppeling: Setup"
+
+#: src/Setup/WizardPage.php:208
+msgid "Settings saved."
+msgstr "Instellingen opgeslagen."
+
+#: src/Setup/WizardPage.php:212 src/Setup/WizardPage.php:511
+msgid "Settings"
+msgstr "Instellingen"
+
+#: src/Setup/WizardPage.php:213
+msgid "The connection with Minox is active. You can change the settings below."
+msgstr "De koppeling met Minox is actief. Hieronder kun je de instellingen aanpassen."
+
+#: src/Setup/WizardPage.php:219 src/Setup/WizardPage.php:559
+msgid "Client ID"
+msgstr "Client ID"
+
+#: src/Setup/WizardPage.php:220 src/Setup/WizardPage.php:560
+msgid "Client Secret"
+msgstr "Client Secret"
+
+#: src/Setup/WizardPage.php:222
+msgid "Send the invoice when"
+msgstr "Factuur versturen bij"
+
+#: src/Setup/WizardPage.php:225 src/Setup/WizardPage.php:596
+msgid "Processing (payment received), recommended"
+msgstr "In behandeling (betaling ontvangen), aanbevolen"
+
+#: src/Setup/WizardPage.php:228 src/Setup/WizardPage.php:599
+msgid "Completed (shipped/picked up)"
+msgstr "Afgerond (verzonden/opgehaald)"
+
+#: src/Setup/WizardPage.php:231
+msgid "Attach invoice PDF"
+msgstr "Factuur-PDF meesturen"
+
+#: src/Setup/WizardPage.php:236
+msgid "Attach the invoice PDF to the booking in Minox"
+msgstr "Stuur de factuur-PDF mee als bijlage bij de boeking in Minox"
+
+#: src/Setup/WizardPage.php:252
+msgid "Save settings"
+msgstr "Instellingen opslaan"
+
+#: src/Setup/WizardPage.php:260
+msgid "Set up the connection again (wizard)"
+msgstr "Verbinding opnieuw instellen (wizard)"
+
+#: src/Setup/WizardPage.php:271
+msgid "Connection and delivery"
+msgstr "Verbinding en verzending"
+
+#. translators: %d: number of orders and refunds
+#: src/Setup/WizardPage.php:276
+#, php-format
+msgid "%d order or refund rescheduled."
+msgid_plural "%d orders or refunds rescheduled."
+msgstr[0] "%d order of terugbetaling opnieuw ingepland."
+msgstr[1] "%d orders of terugbetalingen opnieuw ingepland."
+
+#. translators: %s: error message from KB Data
+#: src/Setup/WizardPage.php:284
+#, php-format
+msgid "KB Data refuses the connection: %s. Check the client ID and secret above (and that they belong to this environment). Orders are kept and sent as soon as the connection works."
+msgstr "KB Data weigert de verbinding: %s. Controleer de client ID en het secret hierboven (en of ze bij deze omgeving horen). Orders blijven bewaard en worden verstuurd zodra de verbinding werkt."
+
+#. translators: %s: date and time
+#: src/Setup/WizardPage.php:292
+#, php-format
+msgid "Last successful connection with KB Data: %s."
+msgstr "Laatste geslaagde verbinding met KB Data: %s."
+
+#: src/Setup/WizardPage.php:295
+msgid "No successful connection with KB Data recorded yet."
+msgstr "Nog geen geslaagde verbinding met KB Data geregistreerd."
+
+#. translators: 1: number of waiting orders, 2: number of orders that need attention
+#: src/Setup/WizardPage.php:299
+#, php-format
+msgid "Waiting to be sent: %1$d. Needs attention: %2$d."
+msgstr "Wachtend op verzending: %1$d. Aandacht nodig: %2$d."
+
+#: src/Setup/WizardPage.php:310
+msgid "needs attention"
+msgstr "aandacht nodig"
+
+#: src/Setup/WizardPage.php:311
+msgid "being retried"
+msgstr "wordt opnieuw geprobeerd"
+
+#: src/Setup/WizardPage.php:317
+msgid "Failed deliveries are retried automatically, with growing intervals. Every hour the connector also checks whether any orders were missed."
+msgstr "Mislukte verzendingen worden automatisch opnieuw geprobeerd, met steeds langere tussenpozen. Elk uur controleert de koppeling bovendien of er orders zijn gemist."
+
+#: src/Setup/WizardPage.php:323
+msgid "Retry now"
+msgstr "Nu opnieuw proberen"
+
+#: src/Setup/WizardPage.php:332
+msgid "Payment methods"
+msgstr "Betaalmethoden"
+
+#. translators: %d: number of payment methods
+#: src/Setup/WizardPage.php:340
+#, php-format
+msgid "%d payment method sent."
+msgid_plural "%d payment methods sent."
+msgstr[0] "%d betaalmethode doorgestuurd."
+msgstr[1] "%d betaalmethoden doorgestuurd."
+
+#: src/Setup/WizardPage.php:345
+msgid "The payment methods could not be sent. Check the connection and try again."
+msgstr "Betaalmethoden konden niet worden doorgestuurd. Controleer de verbinding en probeer het opnieuw."
+
+#: src/Setup/WizardPage.php:351
+msgid "Payment methods are sent automatically when they change. Use this button to send them right away, for example after adding a new payment method."
+msgstr "Betaalmethoden worden automatisch doorgestuurd als ze wijzigen. Met deze knop stuur je ze direct door, bijvoorbeeld na het toevoegen van een nieuwe betaalmethode."
+
+#: src/Setup/WizardPage.php:355
+msgid "Send payment methods now"
+msgstr "Betaalmethoden nu doorsturen"
+
+#: src/Setup/WizardPage.php:363
+msgid "Import orders"
+msgstr "Orders importeren"
+
+#. translators: 1: start date, 2: orders processed, 3: refunds processed, 4: failed
+#: src/Setup/WizardPage.php:371
+#, php-format
+msgid "Import from %1$s in progress: %2$d orders and %3$d refunds processed, %4$d failed."
+msgstr "Import vanaf %1$s is bezig: %2$d orders en %3$d terugbetalingen verwerkt, %4$d mislukt."
+
+#. translators: 1: result message, 2: orders processed, 3: refunds processed, 4: failed
+#: src/Setup/WizardPage.php:380
+#, php-format
+msgid "%1$s %2$d orders and %3$d refunds processed, %4$d failed."
+msgstr "%1$s %2$d orders en %3$d terugbetalingen verwerkt, %4$d mislukt."
+
+#: src/Setup/WizardPage.php:388
+msgid "Older orders are imported on request in the KB Data portal (Webshop connections → Import orders). The shop then processes the import in the background; failed orders get an order note."
+msgstr "Oudere orders importeren vraagt u aan in het KB Data-portaal (Webshop Koppelingen → Orders importeren). De webshop verwerkt de import daarna automatisch op de achtergrond; mislukte orders krijgen een ordernotitie."
+
+#: src/Setup/WizardPage.php:510
+msgid "Connect account"
+msgstr "Account koppelen"
+
+#: src/Setup/WizardPage.php:512
+msgid "Done"
+msgstr "Klaar"
+
+#: src/Setup/WizardPage.php:541
+msgid "Unknown error while testing the connection."
+msgstr "Onbekende fout bij het testen van de verbinding."
+
+#: src/Setup/WizardPage.php:549
+msgid "Connect your Minox account"
+msgstr "Koppel je Minox-account"
+
+#: src/Setup/WizardPage.php:550
+msgid "You received these details from KB Data Solutions when your connection was created."
+msgstr "Deze gegevens heb je ontvangen van KB Data Solutions bij het aanmaken van je koppeling."
+
+#: src/Setup/WizardPage.php:555
+msgid "Connection works."
+msgstr "Verbinding werkt."
+
+#: src/Setup/WizardPage.php:561
+msgid "Save and test"
+msgstr "Opslaan en testen"
+
+#: src/Setup/WizardPage.php:568
+msgid "What does this plugin do?"
+msgstr "Wat doet deze plugin?"
+
+#: src/Setup/WizardPage.php:569
+msgid "KB Data Solutions builds connections between web shops and accounting software. This plugin books every order from this shop automatically and correctly in your Minox administration."
+msgstr "KB Data Solutions bouwt koppelingen tussen webshops en boekhoudpakketten. Deze plugin boekt elke bestelling uit deze webshop automatisch en correct in uw Minox-administratie."
+
+#: src/Setup/WizardPage.php:573
+msgid "Automatic booking per order, no manual retyping"
+msgstr "Automatische boeking per bestelling, geen handmatig overtypen"
+
+#: src/Setup/WizardPage.php:574
+msgid "OSS and intra-community VAT recognised and applied automatically"
+msgstr "OSS- en ICP-btw automatisch herkend en correct toegepast"
+
+#: src/Setup/WizardPage.php:575
+msgid "Invoice attached to the booking automatically"
+msgstr "Factuur automatisch meegeboekt als bijlage"
+
+#: src/Setup/WizardPage.php:581
+msgid "No Client ID and Secret yet?"
+msgstr "Heeft u nog geen Client ID en Secret?"
+
+#: src/Setup/WizardPage.php:583
+msgid "See how the connector works and request access"
+msgstr "Bekijk hoe de koppeling werkt en vraag toegang aan"
+
+#: src/Setup/WizardPage.php:591
+msgid "When should the invoice be sent?"
+msgstr "Wanneer moet de factuur verstuurd worden?"
+
+#: src/Setup/WizardPage.php:604
+msgid "Invoice PDF plugin detected, PDFs are attached automatically."
+msgstr "Factuur-PDF-plugin gedetecteerd, PDF's worden automatisch meegestuurd."
+
+#: src/Setup/WizardPage.php:612
+msgid "Next"
+msgstr "Volgende"
+
+#: src/Setup/WizardPage.php:620
+msgid "Done!"
+msgstr "Klaar!"
+
+#: src/Setup/WizardPage.php:621
+msgid "Minox Connector is set up. You can change everything later via WooCommerce → Minox Connector."
+msgstr "Minox Koppeling is ingesteld. Je kunt alles later nog aanpassen via WooCommerce → Minox Koppeling."
+
+#: src/Setup/WizardPage.php:623
+msgid "Go to settings"
+msgstr "Naar de instellingen"
+
+#: src/Setup/WizardPage.php:655
+msgid "Change"
+msgstr "Wijzigen"
+
+#: src/Setup/WizardPage.php:657
+msgid "Leave empty to keep the current value"
+msgstr "Laat leeg om de huidige waarde te behouden"
+
+#: src/Setup/WizardPage.php:669
+msgid "Refunds"
+msgstr "Terugbetalingen"
+
+#: src/Setup/WizardPage.php:673
+msgid "Book refunds as credit notes in Minox"
+msgstr "Boek terugbetalingen als creditfactuur in Minox"
+
+#. translators: %s: link to the PDF Invoices & Packing Slips Professional extension
+#: src/Setup/WizardPage.php:706
+#, php-format
+msgid "Credit notes for refunds are only attached as PDF with %s. Without that extension refunds are still booked in Minox, just without an attached credit note."
+msgstr "Creditfacturen bij terugbetalingen worden alleen als PDF meegestuurd met %s. Zonder die uitbreiding worden terugbetalingen gewoon geboekt in Minox, alleen zonder bijgevoegde creditfactuur."
+
+#. translators: %s: contact link
+#: src/Setup/WizardPage.php:711
+#, php-format
+msgid "Using another plugin for invoices or credit notes? %s and we will see whether we can support it."
+msgstr "Gebruikt u een andere plugin voor (credit)facturen? %s, dan kijken we of we die kunnen ondersteunen."
+
+#: src/Setup/WizardPage.php:713
+msgid "Let us know"
+msgstr "Laat het ons weten"
+
+#. translators: %s: link to the PDF Invoices & Packing Slips plugin
+#: src/Setup/WizardPage.php:727
+#, php-format
+msgid "No invoice PDF plugin was found on this shop. Install %s to attach a PDF invoice to the booking in Minox automatically. Without such a plugin the booking is still valid, just without an attached document."
+msgstr "We hebben op deze webshop nog geen facturen-PDF-plugin gevonden. Installeer %s om automatisch een PDF-factuur mee te sturen naar de boeking in Minox. Zonder zo'n plugin blijft de boeking gewoon geldig, alleen zonder bijgevoegd document."
+
+#. translators: %s: contact link
+#: src/Setup/WizardPage.php:732
+#, php-format
+msgid "Already using another invoice plugin that we fail to recognise? %s and we are happy to take a look."
+msgstr "Gebruikt u al een andere facturen-plugin en denkt u dat we die ten onrechte niet herkennen? %s, dan kijken we graag met u mee."
+
+#: src/Setup/WizardPage.php:734
+msgid "Get in touch with us"
+msgstr "Neem dan gerust contact met ons op"
+
+#: src/Sync/ImportJobService.php:145
+msgid "The import has finished."
+msgstr "De import is afgerond."
+
+#: src/Sync/ImportJobService.php:156
+msgid "The import has stopped (cancelled in the portal)."
+msgstr "De import is gestopt (geannuleerd in het portaal)."
+
+#. translators: %s: order status
+#: src/Sync/OrderSyncQueue.php:139
+#, php-format
+msgid "Minox Connector: not sent to Minox, the order now has the status \"%s\"."
+msgstr "Minox Koppeling: niet naar Minox verstuurd, de order heeft inmiddels de status \"%s\"."
+
+#: src/Sync/OrderSyncQueue.php:182
+msgid "The order itself could not be sent to Minox."
+msgstr "De order zelf kon niet naar Minox worden verstuurd."
+
+#: src/Sync/OrderSyncQueue.php:187
+msgid "Waiting until the order itself is in Minox."
+msgstr "Wacht tot de order zelf in Minox staat."
+
+#: src/Sync/OrderSyncQueue.php:225
+msgid "Minox Connector: this order had not been sent to Minox yet and has now been scheduled."
+msgstr "Minox Koppeling: deze order was nog niet naar Minox verstuurd en is alsnog ingepland."
+
+#. translators: %s: status returned by KB Data
+#: src/Sync/OrderSyncService.php:90
+#, php-format
+msgid "Minox Connector: customer and invoice sent to Minox (status: %s)."
+msgstr "Minox Koppeling: klant en factuur verzonden naar Minox (status: %s)."
+
+#. translators: %s: reason the order could not be sent
+#: src/Sync/OrderSyncService.php:101
+#, php-format
+msgid "Minox Connector: sending failed: %s"
+msgstr "Minox Koppeling: synchronisatie mislukt: %s"
+
+#. translators: %s: status returned by KB Data
+#: src/Sync/OrderSyncService.php:142
+#, php-format
+msgid "Minox Connector: credit note for refund sent to Minox (status: %s)."
+msgstr "Minox Koppeling: creditfactuur voor terugbetaling verzonden naar Minox (status: %s)."
+
+#. translators: %s: reason the refund could not be sent
+#: src/Sync/OrderSyncService.php:153
+#, php-format
+msgid "Minox Connector: sending the refund failed: %s"
+msgstr "Minox Koppeling: synchronisatie van terugbetaling mislukt: %s"
+
+#: src/Sync/OrderSyncService.php:182
+msgid "The connector retries automatically."
+msgstr "De koppeling probeert het automatisch opnieuw."
+
+#: src/Sync/OrderSyncService.php:183
+msgid "This is not retried automatically; fix the cause and choose \"Send to Minox again\" in the order actions."
+msgstr "Dit wordt niet automatisch opnieuw geprobeerd; los de oorzaak op en kies bij de orderacties \"Opnieuw naar Minox sturen\"."
+
+#: src/Sync/PaymentMethodSyncService.php:63
+msgid "The payment methods could not be sent yet. This is retried automatically."
+msgstr "Betaalmethoden konden nog niet worden doorgestuurd. Er wordt automatisch opnieuw geprobeerd."
+
+#: src/Sync/PaymentMethodSyncService.php:75
+msgid "The connector is not set up yet."
+msgstr "De koppeling is nog niet ingesteld."
+
+#: src/Sync/PaymentSyncService.php:39
+msgid "Confirm full cash receipt (Minox)"
+msgstr "Volledige contante ontvangst bevestigen (Minox)"
+
+#: src/Sync/PaymentSyncService.php:47
+msgid "You are not allowed to confirm a cash receipt."
+msgstr "Je hebt geen toestemming om een contante ontvangst te bevestigen."
+
+#: src/Sync/PaymentSyncService.php:56
+msgid "Minox Connector: full cash receipt confirmed manually. The payment processing configured in the portal remains leading."
+msgstr "Minox Koppeling: volledige contante ontvangst handmatig bevestigd. De ingestelde betaalverwerking in het portaal blijft leidend."
+
+#: src/Sync/PaymentSyncService.php:81
+msgid "Minox Connector: the payment confirmation could not be sent yet. Check the connector; the invoice was not booked again."
+msgstr "Minox Koppeling: de betaalbevestiging kon nog niet worden doorgestuurd. Controleer de koppeling; de factuur is niet opnieuw geboekt."
+
+#: src/Sync/PaymentSyncService.php:144
+msgid "Minox Connector: payment confirmation sent separately. Processing can be followed in the portal."
+msgstr "Minox Koppeling: betaalbevestiging afzonderlijk verstuurd. De verwerking is te volgen in het portaal."
+
+#: src/Sync/VatNumberResolver.php:35
+msgid "Enter one valid VAT field name, not a VAT number or other data."
+msgstr "Vul één geldige btw-veldnaam in, geen btw-nummer of andere gegevens."
+
+#: src/Sync/VatNumberResolver.php:45
+msgid "The VAT field name may only contain letters, digits, underscores and hyphens (64 characters at most)."
+msgstr "De btw-veldnaam mag alleen letters, cijfers, underscores en streepjes bevatten (maximaal 64 tekens)."
+
+#: src/Sync/VatNumberResolver.php:64
+msgid "The linked VAT number field contains no text. Check the field mapping in the Minox Connector settings."
+msgstr "Het gekoppelde btw-nummerveld bevat geen tekst. Controleer de veldkoppeling in de Minox-instellingen."
+
+#: src/Sync/VatNumberResolver.php:70
+msgid "The VAT number field contains no usable text. Check the field mapping in the Minox Connector settings."
+msgstr "Het btw-nummerveld bevat geen bruikbare tekst. Controleer de veldkoppeling in de Minox-instellingen."
+
+#: src/Sync/VatNumberResolver.php:79
+msgid "Several VAT number sources contain different values. Nothing was sent. Choose the right VAT field name in the Minox Connector settings or get in touch."
+msgstr "Meerdere btw-nummerbronnen bevatten verschillende waarden. Er is niets verzonden. Kies de juiste btw-veldnaam in de Minox-instellingen of neem contact op."
