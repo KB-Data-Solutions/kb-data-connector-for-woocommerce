@@ -1,0 +1,74 @@
+services:
+  wordpress:
+    image: wordpress:php8.3-apache
+    container_name: minox-wc-wordpress
+    restart: unless-stopped
+    ports:
+      - "8081:80"
+    environment:
+      WORDPRESS_DB_HOST: wordpress-mysql
+      WORDPRESS_DB_NAME: wordpress
+      WORDPRESS_DB_USER: wordpress
+      WORDPRESS_DB_PASSWORD: wordpress
+      WORDPRESS_DEBUG: 1
+      WORDPRESS_CONFIG_EXTRA: "define('KBDATA_KOPPELING_BASE_URI', '${KBDATA_BASE_URI:?Set KBDATA_BASE_URI in .env to the KB Data environment to test against}');"
+    volumes:
+      - wordpress_data:/var/www/html
+      - .:/var/www/html/wp-content/plugins/kb-data-koppeling-voor-woocommerce
+    depends_on:
+      wordpress-mysql:
+        condition: service_healthy
+    networks:
+      - default
+      - kb-network
+
+  wordpress-mysql:
+    image: mysql:8.0
+    container_name: minox-wc-mysql
+    restart: unless-stopped
+    environment:
+      MYSQL_DATABASE: wordpress
+      MYSQL_USER: wordpress
+      MYSQL_PASSWORD: wordpress
+      MYSQL_ROOT_PASSWORD: root
+    volumes:
+      - wordpress_mysql_data:/var/lib/mysql
+    healthcheck:
+      test: ["CMD", "mysqladmin", "ping", "-h", "localhost", "-u", "root", "-proot"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+    networks:
+      - default
+
+  wpcli:
+    image: wordpress:cli-php8.3
+    container_name: minox-wc-wpcli
+    user: root
+    volumes:
+      - wordpress_data:/var/www/html
+      - .:/var/www/html/wp-content/plugins/kb-data-koppeling-voor-woocommerce
+    environment:
+      WORDPRESS_DB_HOST: wordpress-mysql
+      WORDPRESS_DB_NAME: wordpress
+      WORDPRESS_DB_USER: wordpress
+      WORDPRESS_DB_PASSWORD: wordpress
+    depends_on:
+      wordpress-mysql:
+        condition: service_healthy
+    networks:
+      - default
+      - kb-network
+    entrypoint: ["tail", "-f", "/dev/null"]
+
+networks:
+  default: {}
+  kb-network:
+    external: true
+    name: ${KB_APP_NETWORK:?Set KB_APP_NETWORK in .env to the Docker network of the local KB Data app}
+
+volumes:
+  wordpress_data:
+    name: ${WORDPRESS_DATA_VOLUME:-kb-data-wc-test_wordpress_data}
+  wordpress_mysql_data:
+    name: ${WORDPRESS_MYSQL_VOLUME:-kb-data-wc-test_wordpress_mysql_data}

@@ -1,0 +1,24 @@
+{
+    "$schema": "https://raw.githubusercontent.com/googleapis/release-please/main/schemas/config.json",
+    "release-type": "simple",
+    "packages": {
+        ".": {
+            "release-type": "simple",
+            "package-name": "kb-data-koppeling-voor-woocommerce",
+            "changelog-path": "CHANGELOG.md",
+            "include-component-in-tag": false,
+            "extra-files": [
+                "version.txt",
+                {
+                    "type": "generic",
+                    "path": "kb-data-koppeling-voor-woocommerce.php"
+                },
+                {
+                    "type": "generic",
+                    "path": "readme.txt"
+                }
+            ],
+            "release-as": "0.9.0"
+        }
+    }
+}

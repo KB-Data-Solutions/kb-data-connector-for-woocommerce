@@ -1,0 +1,56 @@
+{
+    "name": "kb-data-solutions/kb-data-koppeling-voor-woocommerce",
+    "description": "Synchroniseert WooCommerce-klanten en -facturen naar Minox via KB Data Solutions.",
+    "type": "wordpress-plugin",
+    "license": "GPL-2.0-or-later",
+    "repositories": [
+        {
+            "type": "vcs",
+            "url": "https://github.com/KB-Data-Solutions/php-sdk"
+        }
+    ],
+    "require": {
+        "php": "^8.3",
+        "ext-sodium": "*",
+        "kb-data-solutions/php-sdk": "0.6.0",
+        "guzzlehttp/guzzle": "^7.9",
+        "php-http/guzzle7-adapter": "^1.1"
+    },
+    "require-dev": {
+        "brain/monkey": "^2.6",
+        "humbug/php-scoper": "^0.18",
+        "php-stubs/woocommerce-stubs": "^11.1",
+        "phpstan/phpstan": "^1.11",
+        "phpunit/phpunit": "^10.0",
+        "szepeviktor/phpstan-wordpress": "^1.3"
+    },
+    "autoload": {
+        "psr-4": {
+            "MinoxWooCommerce\\": "src/"
+        }
+    },
+    "autoload-dev": {
+        "psr-4": {
+            "MinoxWooCommerce\\Tests\\": "tests/"
+        }
+    },
+    "config": {
+        "sort-packages": true
+    },
+    "scripts": {
+        "test": "phpunit",
+        "analyse": "phpstan analyse --memory-limit=1G",
+        "build": [
+            "composer install --no-dev --optimize-autoloader",
+            "php-scoper add-prefix --output-dir=build/scoped --force",
+            "@php -r \"copy('kb-data-koppeling-voor-woocommerce.php', 'build/kb-data-koppeling-voor-woocommerce.php');\""
+        ]
+    },
+    "extra": {
+        "php-scoper": {
+            "prefix": "MinoxWooCommerce\\Vendor"
+        }
+    },
+    "minimum-stability": "stable",
+    "prefer-stable": true
+}
