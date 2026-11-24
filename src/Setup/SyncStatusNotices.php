@@ -29,6 +29,12 @@ final class SyncStatusNotices
             return;
         }
 
+        if (Integration::hasUnsafeBaseUriOverride()) {
+            echo '<div class="notice notice-error"><p><strong>'.esc_html__('Minox Koppeling verstuurt niets: de ingestelde server-URL is onveilig.', 'kb-data-koppeling-voor-woocommerce').'</strong> '
+                .esc_html__('KBDATA_KOPPELING_BASE_URI in wp-config.php moet met https:// beginnen (http:// mag alleen voor localhost). Orders blijven bewaard en worden verstuurd zodra dit is opgelost.', 'kb-data-koppeling-voor-woocommerce')
+                .'</p></div>';
+        }
+
         $authError = ConnectionHealth::authError();
         $counts = (new OrderSyncQueue(Integration::instance()))->counts();
         $link = '<a href="'.esc_url(WizardPage::settingsUrl()).'">'.esc_html__('Bekijk de Minox Koppeling', 'kb-data-koppeling-voor-woocommerce').'</a>';

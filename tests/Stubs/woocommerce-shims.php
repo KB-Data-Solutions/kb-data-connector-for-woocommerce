@@ -294,3 +294,9 @@ if (!class_exists('WC_Tax', false)) {
         }
     }
 }
+
+if (!class_exists('WC_Integration', false)) {
+    abstract class WC_Integration
+    {
+    }
+}

@@ -118,7 +118,7 @@ final class PaymentMethodSyncService
     /** @param list<PaymentMethod> $methods */
     private static function fingerprint(array $methods): string
     {
-        return hash('sha256', Integration::baseUri().'|'.Integration::instance()->get_option('client_id').'|'.
+        return hash('sha256', (Integration::baseUri() ?? '').'|'.Integration::instance()->get_option('client_id').'|'.
             json_encode(array_map(static fn (PaymentMethod $method): array => $method->toArray(), $methods), JSON_THROW_ON_ERROR));
     }
 

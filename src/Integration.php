@@ -19,11 +19,40 @@ final class Integration extends WC_Integration implements IntegrationSettings
 
     private const array ENCRYPTED_FIELDS = ['client_id', 'client_secret'];
 
-    public static function baseUri(): string
+    private const array LOCAL_HOSTS = ['localhost', '127.0.0.1', '[::1]', 'host.docker.internal'];
+
+    public static function baseUri(): ?string
     {
-        return \defined('KBDATA_KOPPELING_BASE_URI')
-            ? (string) \constant('KBDATA_KOPPELING_BASE_URI')
-            : self::PRODUCTION_BASE_URI;
+        if (!\defined('KBDATA_KOPPELING_BASE_URI')) {
+            return self::PRODUCTION_BASE_URI;
+        }
+
+        $override = (string) \constant('KBDATA_KOPPELING_BASE_URI');
+
+        return self::isSafeBaseUri($override) ? rtrim($override, '/') : null;
+    }
+
+    public static function hasUnsafeBaseUriOverride(): bool
+    {
+        return \defined('KBDATA_KOPPELING_BASE_URI') && self::baseUri() === null;
+    }
+
+    public static function isSafeBaseUri(string $uri): bool
+    {
+        $parts = parse_url($uri);
+
+        if (!is_array($parts) || !isset($parts['scheme'], $parts['host']) || isset($parts['user']) || isset($parts['pass'])) {
+            return false;
+        }
+
+        $scheme = strtolower($parts['scheme']);
+        $host = strtolower($parts['host']);
+
+        if ($scheme === 'https') {
+            return true;
+        }
+
+        return $scheme === 'http' && (in_array($host, self::LOCAL_HOSTS, true) || str_ends_with($host, '.localhost'));
     }
 
     public function __construct()
@@ -134,14 +163,16 @@ final class Integration extends WC_Integration implements IntegrationSettings
 
     public function makeClient(): ?Client
     {
-        if (!$this->isConfigured()) {
+        $baseUri = self::baseUri();
+
+        if (!$this->isConfigured() || $baseUri === null) {
             return null;
         }
 
         return Client::create(
             clientId: (string) $this->get_option('client_id'),
             clientSecret: (string) $this->get_option('client_secret'),
-            baseUri: self::baseUri(),
+            baseUri: $baseUri,
             platform: self::PLATFORM,
         );
     }
