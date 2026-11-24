@@ -5,7 +5,7 @@
  * Plugin URI:        https://www.kbdatasolutions.nl/
  * Description:       Boekt elke WooCommerce-bestelling automatisch en correct in uw Minox-administratie, inclusief btw-classificatie en factuur. Gebouwd door KB Data Solutions (kbdatasolutions.nl). Vereist een actief KB Data Solutions-account.
  * x-release-please-start-version
- * Version:           0.9.0
+ * Version:           0.9.1
  * Requires at least: 6.4
  * Requires PHP:      8.3
  * WC requires at least: 8.0
@@ -25,7 +25,7 @@ if (!defined('ABSPATH')) {
     exit;
 }
 
-const MINOX_WC_VERSION = '0.9.0';
+const MINOX_WC_VERSION = '0.9.1';
 // x-release-please-end
 const MINOX_WC_PLUGIN_FILE = __FILE__;
 const MINOX_WC_PLUGIN_DIR = __DIR__;
