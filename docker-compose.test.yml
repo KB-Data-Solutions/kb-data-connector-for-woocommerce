@@ -4,7 +4,7 @@ services:
     container_name: minox-wc-wordpress
     restart: unless-stopped
     ports:
-      - "8081:80"
+      - "127.0.0.1:8081:80"
     environment:
       WORDPRESS_DB_HOST: wordpress-mysql
       WORDPRESS_DB_NAME: wordpress
