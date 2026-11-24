@@ -1,5 +1,19 @@
 # Changelog
 
+## [0.10.0](https://github.com/KB-Data-Solutions/kb-data-connector-for-woocommerce/compare/v0.9.0...v0.10.0) (2026-11-24)
+
+
+### Features
+
+* rename to Minox Connector for WooCommerce with English source strings and a Dutch translation ([fedcb0d](https://github.com/KB-Data-Solutions/kb-data-connector-for-woocommerce/commit/fedcb0d284b775e2cbf5cd3114e9c2585a47014e))
+
+
+### Bug Fixes
+
+* expose the test WordPress on localhost only ([8574d2e](https://github.com/KB-Data-Solutions/kb-data-connector-for-woocommerce/commit/8574d2e1b66cc9e9ddce7c1f9f174baa203da594))
+* only send credentials to an https server URL ([56cd039](https://github.com/KB-Data-Solutions/kb-data-connector-for-woocommerce/commit/56cd039cdbade04cab68c423d1067aec72bfff24))
+* send shipping and fee charges as invoice lines ([310e895](https://github.com/KB-Data-Solutions/kb-data-connector-for-woocommerce/commit/310e8956d887b6825622721ab13c9763fecc4e2a))
+
 ## [0.9.0](https://github.com/KB-Data-Solutions/kb-data-koppeling-voor-woocommerce/compare/v0.9.0...v0.9.0) (2026-11-24)
 
 
