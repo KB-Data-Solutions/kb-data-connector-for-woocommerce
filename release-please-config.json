@@ -17,8 +17,7 @@
                     "type": "generic",
                     "path": "readme.txt"
                 }
-            ],
-            "release-as": "0.9.0"
+            ]
         }
     }
 }
