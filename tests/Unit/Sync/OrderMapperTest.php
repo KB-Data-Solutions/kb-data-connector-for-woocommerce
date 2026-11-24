@@ -10,7 +10,9 @@ use MinoxWooCommerce\Sync\OrderMapper;
 use PHPUnit\Framework\TestCase;
 use WC_DateTime;
 use WC_Order;
+use WC_Order_Item_Fee;
 use WC_Order_Item_Product;
+use WC_Order_Item_Shipping;
 use WC_Order_Refund;
 use WC_Tax;
 
@@ -225,6 +227,79 @@ final class OrderMapperTest extends TestCase
     }
 
     /** @param  array<string, mixed>  $overrides */
+    public function test_shipping_and_fees_become_lines_and_free_shipping_lines_are_left_out(): void
+    {
+        WC_Tax::$ratePercentages = [7 => '12.0000%'];
+        $product = $this->charge(WC_Order_Item_Product::class, 11, 'Echte Bakkers Speculaas', '45.11', '5.41', [7 => '5.41'], 13);
+        $freeShipping = $this->charge(WC_Order_Item_Shipping::class, 12, 'Standaard bezorging', '0.00', '0.00', []);
+        $shipping = $this->charge(WC_Order_Item_Shipping::class, 13, 'DPD 0-20 kg', '20.50', '2.46', [7 => '2.46']);
+        $fee = $this->charge(WC_Order_Item_Fee::class, 14, 'Toeslag', '1.00', '0.12', [7 => '0.12']);
+
+        $invoice = (new OrderMapper())->toInvoiceRequest($this->makeOrder([
+            'total' => '74.60', 'total_tax' => '7.99', 'items' => [$product, $freeShipping, $shipping, $fee],
+        ]), null);
+
+        self::assertSame(['Echte Bakkers Speculaas', 'DPD 0-20 kg', 'Toeslag'], array_map(static fn ($line): string => $line->description, $invoice->lines));
+        self::assertSame('66.61', $invoice->netAmount->value);
+        self::assertSame('66.61', number_format(array_sum(array_map(static fn ($line): float => (float) $line->netAmount->value, $invoice->lines)), 2, '.', ''));
+        self::assertSame('7.99', number_format(array_sum(array_map(static fn ($line): float => (float) $line->vatAmount->value, $invoice->lines)), 2, '.', ''));
+        self::assertSame('12.00', $invoice->lines[1]->vatRate);
+        self::assertSame('1', $invoice->lines[1]->quantity);
+    }
+
+    public function test_shipping_spread_over_two_vat_rates_is_split_per_rate(): void
+    {
+        WC_Tax::$ratePercentages = [1 => '21.0000%', 2 => '9.0000%'];
+        $shipping = $this->charge(WC_Order_Item_Shipping::class, 20, 'Verzending', '10.00', '1.29', [1 => '0.84', 2 => '0.45']);
+
+        $invoice = (new OrderMapper())->toInvoiceRequest($this->makeOrder(['total' => '11.29', 'total_tax' => '1.29', 'items' => [$shipping]]), null);
+
+        $byRate = [];
+        foreach ($invoice->lines as $line) {
+            $byRate[$line->vatRate] = [$line->netAmount->value, $line->vatAmount->value];
+            self::assertEqualsWithDelta((float) $line->netAmount->value * (float) $line->vatRate / 100, (float) $line->vatAmount->value, 0.01);
+        }
+        self::assertSame(['4.00', '0.84'], $byRate['21.00']);
+        self::assertSame(['5.00', '0.45'], $byRate['9.00']);
+        self::assertSame(['1.00', '0.00'], $byRate['0']);
+        self::assertSame('10.00', number_format(array_sum(array_map(static fn ($line): float => (float) $line->netAmount->value, $invoice->lines)), 2, '.', ''));
+    }
+
+    public function test_a_refund_including_shipping_credits_the_shipping_line_too(): void
+    {
+        WC_Tax::$ratePercentages = [1 => '21.0000%'];
+        $product = $this->charge(WC_Order_Item_Product::class, 30, 'Widget', '-10.00', '-2.10', [1 => '-2.10'], -1);
+        $shipping = $this->charge(WC_Order_Item_Shipping::class, 31, 'PostNL', '-5.00', '-1.05', [1 => '-1.05']);
+
+        $invoice = (new OrderMapper())->toRefundInvoiceRequest($this->makeOrder([]), $this->makeRefund([
+            'total' => '-18.15', 'total_tax' => '-3.15', 'items' => [$product, $shipping],
+        ]), null);
+
+        self::assertCount(2, $invoice->lines);
+        self::assertSame('-15.00', number_format(array_sum(array_map(static fn ($line): float => (float) $line->netAmount->value, $invoice->lines)), 2, '.', ''));
+        self::assertSame('-15.00', $invoice->netAmount->value);
+    }
+
+    /**
+     * @param class-string $class
+     * @param array<int, string> $taxes
+     */
+    private function charge(string $class, int $id, string $name, string $total, string $tax, array $taxes, ?int $quantity = null): object
+    {
+        $item = Mockery::mock($class);
+        $item->shouldReceive('get_id')->andReturn($id);
+        $item->shouldReceive('get_name')->andReturn($name);
+        $item->shouldReceive('get_total')->andReturn($total);
+        $item->shouldReceive('get_total_tax')->andReturn($tax);
+        $item->shouldReceive('get_taxes')->andReturn(['total' => $taxes]);
+        if ($quantity !== null) {
+            $item->shouldReceive('get_quantity')->andReturn($quantity);
+            $item->shouldReceive('get_product')->andReturn(false);
+        }
+
+        return $item;
+    }
+
     private function makeRefund(array $overrides): WC_Order_Refund
     {
         $defaults = [

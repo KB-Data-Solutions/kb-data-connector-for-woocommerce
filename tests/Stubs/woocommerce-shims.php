@@ -300,3 +300,15 @@ if (!class_exists('WC_Integration', false)) {
     {
     }
 }
+
+foreach (['WC_Order_Item_Shipping', 'WC_Order_Item_Fee'] as $chargeClass) {
+    if (!class_exists($chargeClass, false)) {
+        eval('class '.$chargeClass.' {
+            public function get_id(): int { return 0; }
+            public function get_name(): string { return ""; }
+            public function get_total(): string { return "0"; }
+            public function get_total_tax(): string { return "0"; }
+            public function get_taxes(): array { return []; }
+        }');
+    }
+}

@@ -13,12 +13,16 @@ use KBDataSolutions\Sdk\Invoice\Request\CreateInvoiceRequest;
 use KBDataSolutions\Sdk\Invoice\Request\DocumentUpload;
 use KBDataSolutions\Sdk\Invoice\Request\InvoiceLine;
 use WC_Order;
+use WC_Order_Item_Fee;
 use WC_Order_Item_Product;
+use WC_Order_Item_Shipping;
 use WC_Order_Refund;
 use WC_Tax;
 
 final class OrderMapper
 {
+    private const array ITEM_TYPES = ['line_item', 'shipping', 'fee'];
+
     public function __construct(private readonly VatNumberResolver $vatNumbers = new VatNumberResolver()) {}
 
     public function toInvoiceRequest(WC_Order $order, ?DocumentUpload $document): CreateInvoiceRequest
@@ -84,61 +88,13 @@ final class OrderMapper
     /** @return list<InvoiceLine> */
     private function invoiceLines(WC_Order $order): array
     {
-        $lines = [];
-
-        foreach ($order->get_items() as $item) {
-            if (!$item instanceof WC_Order_Item_Product) {
-                continue;
-            }
-
-            $netAmount = (float) $item->get_total();
-            $vatAmount = (float) $item->get_total_tax();
-            $quantity = max(1, (int) $item->get_quantity());
-            $product = $item->get_product();
-
-            $lines[] = new InvoiceLine(
-                externalId: (string) $item->get_id(),
-                description: $item->get_name(),
-                sku: $product !== false ? ($product->get_sku() ?: null) : null,
-                quantity: (string) $quantity,
-                unitPrice: $this->amount($netAmount / $quantity),
-                netAmount: $this->amount($netAmount),
-                vatAmount: $this->amount($vatAmount),
-                grossAmount: $this->amount($netAmount + $vatAmount),
-                vatRate: $this->vatRatePercentage($item),
-            );
-        }
-
-        return $lines;
+        return $this->linesFor($order->get_items(self::ITEM_TYPES));
     }
 
     /** @return list<InvoiceLine> */
     private function refundLines(WC_Order_Refund $refund): array
     {
-        $lines = [];
-
-        foreach ($refund->get_items() as $item) {
-            if (!$item instanceof WC_Order_Item_Product) {
-                continue;
-            }
-
-            $netAmount = (float) $item->get_total();
-            $vatAmount = (float) $item->get_total_tax();
-            $quantity = max(1, abs((int) $item->get_quantity()));
-            $product = $item->get_product();
-
-            $lines[] = new InvoiceLine(
-                externalId: (string) $item->get_id(),
-                description: $item->get_name(),
-                sku: $product !== false ? ($product->get_sku() ?: null) : null,
-                quantity: (string) $quantity,
-                unitPrice: $this->amount($netAmount / $quantity),
-                netAmount: $this->amount($netAmount),
-                vatAmount: $this->amount($vatAmount),
-                grossAmount: $this->amount($netAmount + $vatAmount),
-                vatRate: $this->vatRatePercentage($item),
-            );
-        }
+        $lines = $this->linesFor($refund->get_items(self::ITEM_TYPES));
 
         if ($lines !== []) {
             return $lines;
@@ -163,18 +119,84 @@ final class OrderMapper
         ];
     }
 
-    private function vatRatePercentage(WC_Order_Item_Product $item): string
+    /**
+     * @param iterable<mixed> $items
+     * @return list<InvoiceLine>
+     */
+    private function linesFor(iterable $items): array
     {
-        $taxes = $item->get_taxes();
-        $rateIds = array_keys($taxes['total'] ?? []);
+        $lines = [];
 
-        if ($rateIds === []) {
-            return '0';
+        foreach ($items as $item) {
+            if ($item instanceof WC_Order_Item_Product) {
+                $product = $item->get_product();
+                $quantity = max(1, abs((int) $item->get_quantity()));
+                $sku = $product !== false ? ($product->get_sku() ?: null) : null;
+                array_push($lines, ...$this->linesPerRate($item, $item->get_name(), $sku, $quantity));
+            } elseif ($item instanceof WC_Order_Item_Shipping || $item instanceof WC_Order_Item_Fee) {
+                if (round((float) $item->get_total(), 2) === 0.0 && round((float) $item->get_total_tax(), 2) === 0.0) {
+                    continue;
+                }
+                array_push($lines, ...$this->linesPerRate($item, $item->get_name(), null, 1));
+            }
         }
 
-        $percent = (float) rtrim(WC_Tax::get_rate_percent((int) $rateIds[0]), '%');
+        return $lines;
+    }
 
-        return number_format($percent, 2, '.', '');
+    /** @return list<InvoiceLine> */
+    private function linesPerRate(WC_Order_Item_Product|WC_Order_Item_Shipping|WC_Order_Item_Fee $item, string $description, ?string $sku, int $quantity): array
+    {
+        $net = round((float) $item->get_total(), 2);
+        $vat = round((float) $item->get_total_tax(), 2);
+        $taxes = array_filter(
+            array_map(static fn (mixed $amount): float => round((float) $amount, 2), $item->get_taxes()['total'] ?? []),
+            static fn (float $amount): bool => $amount !== 0.0,
+        );
+
+        if (count($taxes) <= 1) {
+            $rateId = array_key_first($taxes) ?? array_key_first($item->get_taxes()['total'] ?? []);
+
+            return [$this->line((string) $item->get_id(), $description, $sku, $quantity, $net, $vat, $rateId !== null ? $this->ratePercent((int) $rateId) : '0')];
+        }
+
+        $lines = [];
+        $allocated = 0.0;
+
+        foreach ($taxes as $rateId => $rateVat) {
+            $percent = $this->ratePercent((int) $rateId);
+            $rateNet = (float) $percent > 0 ? round($rateVat * 100 / (float) $percent, 2) : 0.0;
+            $allocated += $rateNet;
+            $lines[] = $this->line($item->get_id().'-'.$rateId, $description, $sku, 1, $rateNet, $rateVat, $percent);
+        }
+
+        $remainder = round($net - $allocated, 2);
+
+        if ($remainder !== 0.0) {
+            $lines[] = $this->line($item->get_id().'-0', $description, $sku, 1, $remainder, 0.0, '0');
+        }
+
+        return $lines;
+    }
+
+    private function line(string $externalId, string $description, ?string $sku, int $quantity, float $net, float $vat, string $vatRate): InvoiceLine
+    {
+        return new InvoiceLine(
+            externalId: $externalId,
+            description: $description,
+            sku: $sku,
+            quantity: (string) $quantity,
+            unitPrice: $this->amount($net / $quantity),
+            netAmount: $this->amount($net),
+            vatAmount: $this->amount($vat),
+            grossAmount: $this->amount($net + $vat),
+            vatRate: $vatRate,
+        );
+    }
+
+    private function ratePercent(int $rateId): string
+    {
+        return number_format((float) rtrim(WC_Tax::get_rate_percent($rateId), '%'), 2, '.', '');
     }
 
     private function amount(float $value): DecimalAmount
