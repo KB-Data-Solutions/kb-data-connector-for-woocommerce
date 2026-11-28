@@ -567,3 +567,11 @@ msgstr ""
 #: src/Sync/VatNumberResolver.php:79
 msgid "Several VAT number sources contain different values. Nothing was sent. Choose the right VAT field name in the Minox Connector settings or get in touch."
 msgstr ""
+
+#: src/Setup/TaxRoundingNotice.php:19
+msgid "WooCommerce rounds VAT at subtotal level instead of per line. Minox calculates the VAT of OSS invoices per invoice line, so OSS invoices can differ by one cent. We recommend switching off \"Round tax at subtotal level, instead of rounding per line\"."
+msgstr ""
+
+#: src/Setup/TaxRoundingNotice.php:21
+msgid "Open the tax settings"
+msgstr ""

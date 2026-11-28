@@ -560,3 +560,11 @@ msgstr "Het btw-nummerveld bevat geen bruikbare tekst. Controleer de veldkoppeli
 #: src/Sync/VatNumberResolver.php:79
 msgid "Several VAT number sources contain different values. Nothing was sent. Choose the right VAT field name in the Minox Connector settings or get in touch."
 msgstr "Meerdere btw-nummerbronnen bevatten verschillende waarden. Er is niets verzonden. Kies de juiste btw-veldnaam in de Minox-instellingen of neem contact op."
+
+#: src/Setup/TaxRoundingNotice.php:19
+msgid "WooCommerce rounds VAT at subtotal level instead of per line. Minox calculates the VAT of OSS invoices per invoice line, so OSS invoices can differ by one cent. We recommend switching off \"Round tax at subtotal level, instead of rounding per line\"."
+msgstr "WooCommerce rondt de btw af op subtotaalniveau in plaats van per regel. Minox berekent de btw van OSS-facturen per factuurregel, waardoor OSS-facturen 1 cent kunnen afwijken. Zet \"Rond belastingen af bij subtotalen, in plaats van per regel\" bij voorkeur uit."
+
+#: src/Setup/TaxRoundingNotice.php:21
+msgid "Open the tax settings"
+msgstr "Naar de belastinginstellingen"

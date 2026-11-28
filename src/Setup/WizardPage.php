@@ -245,6 +245,7 @@ final class WizardPage
 
         self::renderSyncRefundsField($integration);
 
+        echo TaxRoundingNotice::render();
         echo VatNumberSourceSettings::render($integration->vatNumberMetaKey(), 'vat_number_meta_key');
 
         self::submitButton(__('Save settings', 'kb-data-connector-for-woocommerce'));
@@ -511,6 +512,7 @@ final class WizardPage
 
         self::renderSyncRefundsField($integration);
 
+        echo TaxRoundingNotice::render();
         echo VatNumberSourceSettings::render($integration->vatNumberMetaKey(), 'vat_number_meta_key');
 
         self::submitButton(__('Next', 'kb-data-connector-for-woocommerce'));
