@@ -5,7 +5,7 @@
  * Plugin URI:        https://www.kbdatasolutions.nl/
  * Description:       Books every WooCommerce order automatically and correctly in your Minox administration, including VAT classification and invoice. Built by KB Data Solutions (kbdatasolutions.nl). Requires an active KB Data Solutions account.
  * x-release-please-start-version
- * Version:           0.11.0
+ * Version:           0.12.0
  * Requires at least: 6.4
  * Requires PHP:      8.3
  * WC requires at least: 8.0
@@ -26,7 +26,7 @@ if (!defined('ABSPATH')) {
     exit;
 }
 
-const MINOX_WC_VERSION = '0.11.0';
+const MINOX_WC_VERSION = '0.12.0';
 // x-release-please-end
 const MINOX_WC_PLUGIN_FILE = __FILE__;
 const MINOX_WC_PLUGIN_DIR = __DIR__;
