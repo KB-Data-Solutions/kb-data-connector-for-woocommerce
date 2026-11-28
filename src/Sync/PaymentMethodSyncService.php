@@ -6,6 +6,7 @@ namespace MinoxWooCommerce\Sync;
 
 use KBDataSolutions\Sdk\PaymentMethod\PaymentMethod;
 use MinoxWooCommerce\Integration;
+use MinoxWooCommerce\Support\ConnectorLog;
 use RuntimeException;
 use Throwable;
 
@@ -59,7 +60,8 @@ final class PaymentMethodSyncService
         }
         try {
             self::syncNow();
-        } catch (Throwable) {
+        } catch (Throwable $exception) {
+            ConnectorLog::warning('Payment methods not sent', $exception, ['attempt' => $attempt]);
             update_option(self::ERROR_OPTION, __('The payment methods could not be sent yet. This is retried automatically.', 'kb-data-connector-for-woocommerce'), false);
             if ($attempt < 5) {
                 self::schedule($attempt + 1);

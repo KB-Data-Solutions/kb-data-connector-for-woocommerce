@@ -9,6 +9,7 @@ use DateTimeZone;
 use KBDataSolutions\Sdk\Invoice\DecimalAmount;
 use KBDataSolutions\Sdk\Payment\Request\CreatePaymentRequest;
 use MinoxWooCommerce\Integration;
+use MinoxWooCommerce\Support\ConnectorLog;
 use RuntimeException;
 use Throwable;
 use WC_Order;
@@ -74,7 +75,8 @@ final class PaymentSyncService
         }
         try {
             (new self())->sync($order, $integration);
-        } catch (Throwable) {
+        } catch (Throwable $exception) {
+            ConnectorLog::warning('Payment confirmation not sent', $exception, ['order_id' => $orderId, 'attempt' => $attempt]);
             if ($attempt < 5 && function_exists('as_schedule_single_action')) {
                 as_schedule_single_action(time() + min(3600, 60 * (2 ** $attempt)), self::HOOK, [$orderId, $attempt + 1], self::GROUP, true);
             } else {

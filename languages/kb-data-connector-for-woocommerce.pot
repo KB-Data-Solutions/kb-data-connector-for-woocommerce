@@ -575,3 +575,11 @@ msgstr ""
 #: src/Setup/TaxRoundingNotice.php:21
 msgid "Open the tax settings"
 msgstr ""
+
+#: src/Setup/WizardPage.php
+msgid "Test connection"
+msgstr ""
+
+#: src/Setup/WizardPage.php
+msgid "The saved Client ID and Client Secret can no longer be read, usually because the security keys in wp-config.php were changed. Nothing is sent to Minox until you enter them again."
+msgstr ""

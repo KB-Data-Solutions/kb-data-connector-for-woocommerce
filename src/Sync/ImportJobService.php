@@ -13,6 +13,7 @@ use KBDataSolutions\Sdk\ImportJob\ImportJob;
 use KBDataSolutions\Sdk\ImportJob\Request\ImportJobCompletion;
 use KBDataSolutions\Sdk\ImportJob\Request\ImportJobProgress;
 use MinoxWooCommerce\Integration;
+use MinoxWooCommerce\Support\ConnectorLog;
 use Throwable;
 use WC_Order;
 use WC_Order_Refund;
@@ -94,7 +95,8 @@ final class ImportJobService
         } catch (AuthenticationException $exception) {
             ConnectionHealth::recordAuthFailure($exception->getMessage());
             return;
-        } catch (Throwable) {
+        } catch (Throwable $exception) {
+            ConnectorLog::warning('Import jobs could not be fetched', $exception);
             return;
         }
 
@@ -103,7 +105,8 @@ final class ImportJobService
                 $claimed = $client->importJobs()->claim($job->id);
             } catch (ConflictException) {
                 continue;
-            } catch (Throwable) {
+            } catch (Throwable $exception) {
+                ConnectorLog::warning('Import job could not be claimed', $exception, ['job_id' => $job->id]);
                 return;
             }
             $this->start($claimed);

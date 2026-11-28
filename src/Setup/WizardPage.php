@@ -8,7 +8,6 @@ use KBDataSolutions\Sdk\Exception\NotFoundException;
 use KBDataSolutions\Sdk\Exception\SdkException;
 use InvalidArgumentException;
 use MinoxWooCommerce\Integration;
-use MinoxWooCommerce\Security\CredentialCipher;
 use MinoxWooCommerce\Sync\ConnectionHealth;
 use MinoxWooCommerce\Sync\ImportJobService;
 use MinoxWooCommerce\Sync\InvoicePdfResolver;
@@ -26,6 +25,10 @@ final class WizardPage
     private const string SETTINGS_NONCE_ACTION = 'minox_wc_settings';
 
     private const string PAYMENT_METHODS_NONCE_ACTION = 'minox_wc_sync_payment_methods';
+
+    private const string TEST_CONNECTION_NONCE_ACTION = 'minox_wc_test_connection';
+
+    private const string CONNECTION_ERROR_TRANSIENT = 'minox_wc_connection_error_';
 
 
 
@@ -78,8 +81,8 @@ final class WizardPage
 
         match ($step) {
             1 => $settings = Integration::instance()->encryptSettings(array_merge($settings, [
-                'client_id' => sanitize_text_field((string) ($_POST['client_id'] ?? '')),
-                'client_secret' => sanitize_text_field((string) ($_POST['client_secret'] ?? '')),
+                'client_id' => self::postedCredential('client_id'),
+                'client_secret' => self::postedCredential('client_secret'),
             ])),
             2 => $settings = array_merge($settings, [
                 'sync_trigger_status' => in_array($_POST['sync_trigger_status'] ?? '', ['processing', 'completed'], true)
@@ -94,7 +97,15 @@ final class WizardPage
         update_option($settingsKey, $settings);
 
         if ($step === 1) {
+            Integration::instance()->init_settings();
             self::retryAfterCredentialChange();
+            $connectionError = self::testConnection();
+
+            if ($connectionError !== null) {
+                set_transient(self::CONNECTION_ERROR_TRANSIENT.get_current_user_id(), $connectionError, 5 * MINUTE_IN_SECONDS);
+                wp_safe_redirect(self::url(1));
+                exit;
+            }
         }
 
         $nextStep = $step >= 3 ? 3 : $step + 1;
@@ -115,8 +126,8 @@ final class WizardPage
         $settings = is_array($settings) ? $settings : [];
 
         $settings = Integration::instance()->encryptSettings(array_merge($settings, [
-            'client_id' => sanitize_text_field((string) ($_POST['client_id'] ?? '')),
-            'client_secret' => sanitize_text_field((string) ($_POST['client_secret'] ?? '')),
+            'client_id' => self::postedCredential('client_id'),
+            'client_secret' => self::postedCredential('client_secret'),
             'sync_trigger_status' => in_array($_POST['sync_trigger_status'] ?? '', ['processing', 'completed'], true)
                 ? $_POST['sync_trigger_status']
                 : 'processing',
@@ -178,6 +189,12 @@ final class WizardPage
         echo '<div class="wrap minox-wc-wizard">';
         self::renderHeader();
 
+        if ($integration->hasUnreadableCredentials()) {
+            echo '<div class="notice notice-error"><p>'
+                .esc_html__('The saved Client ID and Client Secret can no longer be read, usually because the security keys in wp-config.php were changed. Nothing is sent to Minox until you enter them again.', 'kb-data-connector-for-woocommerce')
+                .'</p></div>';
+        }
+
         if ($integration->isConfigured() && !isset($_GET['step'])) {
             self::renderSettingsPage($integration);
             echo '</div>';
@@ -214,8 +231,8 @@ final class WizardPage
         wp_nonce_field(self::SETTINGS_NONCE_ACTION);
         echo '<input type="hidden" name="action" value="minox_wc_settings_save">';
 
-        self::maskedCredentialField('client_id', __('Client ID', 'kb-data-connector-for-woocommerce'), $integration->get_option('client_id'), true);
-        self::maskedCredentialField('client_secret', __('Client Secret', 'kb-data-connector-for-woocommerce'), $integration->get_option('client_secret'), false);
+        echo CredentialField::render('client_id', __('Client ID', 'kb-data-connector-for-woocommerce'), (string) $integration->get_option('client_id'), true);
+        echo CredentialField::render('client_secret', __('Client Secret', 'kb-data-connector-for-woocommerce'), (string) $integration->get_option('client_secret'), false, 'password');
 
         echo '<div class="minox-wc-field"><label>'.esc_html__('Send the invoice when', 'kb-data-connector-for-woocommerce').'</label>';
         echo '<p><label><input type="radio" name="sync_trigger_status" value="processing" '
@@ -434,17 +451,16 @@ final class WizardPage
     private static function renderStep1(): void
     {
         $integration = Integration::instance();
-        $connectionError = null;
+        $transientKey = self::CONNECTION_ERROR_TRANSIENT.get_current_user_id();
+        $savedError = get_transient($transientKey);
+        $connectionError = is_string($savedError) && $savedError !== '' ? $savedError : null;
+        delete_transient($transientKey);
+        $tested = $connectionError !== null;
 
-        if ($integration->isConfigured()) {
-            try {
-                $integration->makeClient()?->debtors()->find('minox-koppeling-connection-test');
-            } catch (NotFoundException) {
-            } catch (SdkException $exception) {
-                $connectionError = $exception->getMessage();
-            } catch (Throwable) {
-                $connectionError = __('Unknown error while testing the connection.', 'kb-data-connector-for-woocommerce');
-            }
+        $nonce = isset($_GET['_wpnonce']) && is_string($_GET['_wpnonce']) ? wp_unslash($_GET['_wpnonce']) : '';
+        if (!$tested && isset($_GET['test_connection']) && wp_verify_nonce($nonce, self::TEST_CONNECTION_NONCE_ACTION)) {
+            $connectionError = self::testConnection();
+            $tested = true;
         }
 
         if (!$integration->isConfigured()) {
@@ -456,15 +472,38 @@ final class WizardPage
 
         if ($connectionError !== null) {
             echo '<div class="notice notice-error"><p>'.esc_html($connectionError).'</p></div>';
-        } elseif ($integration->isConfigured()) {
+        } elseif ($tested) {
             echo '<div class="notice notice-success"><p>'.esc_html__('Connection works.', 'kb-data-connector-for-woocommerce').'</p></div>';
+        } elseif ($integration->isConfigured()) {
+            echo '<p><a class="button" href="'.esc_url(wp_nonce_url(add_query_arg('test_connection', '1', self::url(1)), self::TEST_CONNECTION_NONCE_ACTION)).'">'
+                .esc_html__('Test connection', 'kb-data-connector-for-woocommerce').'</a></p>';
         }
 
         self::formOpen(1);
-        self::textField('client_id', __('Client ID', 'kb-data-connector-for-woocommerce'), $integration->get_option('client_id'));
-        self::textField('client_secret', __('Client Secret', 'kb-data-connector-for-woocommerce'), $integration->get_option('client_secret'), 'password');
+        echo CredentialField::render('client_id', __('Client ID', 'kb-data-connector-for-woocommerce'), (string) $integration->get_option('client_id'), true);
+        echo CredentialField::render('client_secret', __('Client Secret', 'kb-data-connector-for-woocommerce'), (string) $integration->get_option('client_secret'), false, 'password');
         self::submitButton(__('Save and test', 'kb-data-connector-for-woocommerce'));
         self::formClose();
+    }
+
+    private static function testConnection(): ?string
+    {
+        $integration = Integration::instance();
+
+        if (!$integration->isConfigured()) {
+            return null;
+        }
+
+        try {
+            $integration->makeClient()?->debtors()->find('minox-koppeling-connection-test');
+        } catch (NotFoundException) {
+        } catch (SdkException $exception) {
+            return $exception->getMessage();
+        } catch (Throwable) {
+            return __('Unknown error while testing the connection.', 'kb-data-connector-for-woocommerce');
+        }
+
+        return null;
     }
 
     private static function renderIntro(): void
@@ -543,28 +582,6 @@ final class WizardPage
         echo '</form>';
     }
 
-    private static function textField(string $name, string $label, string $value, string $type = 'text'): void
-    {
-        echo '<div class="minox-wc-field"><label>'.esc_html($label).'</label>';
-        echo '<input type="'.esc_attr($type).'" name="'.esc_attr($name).'" value="'.esc_attr($value).'" class="regular-text"></div>';
-    }
-
-    private static function maskedCredentialField(string $name, string $label, string $value, bool $revealTail): void
-    {
-        $toggleId = 'minox-wc-toggle-'.$name;
-
-        echo '<div class="minox-wc-field minox-wc-credential-field">';
-        echo '<label>'.esc_html($label).'</label>';
-        echo '<p class="minox-wc-credential-masked">'.esc_html(CredentialCipher::mask($value, $revealTail)).'</p>';
-        echo '<input type="checkbox" id="'.esc_attr($toggleId).'" class="minox-wc-credential-toggle">';
-        echo '<label for="'.esc_attr($toggleId).'" class="minox-wc-credential-toggle-label">'
-            .esc_html__('Change', 'kb-data-connector-for-woocommerce').'</label>';
-        echo '<input type="text" name="'.esc_attr($name).'" value="" class="regular-text minox-wc-credential-input" '
-            .'placeholder="'.esc_attr__('Leave empty to keep the current value', 'kb-data-connector-for-woocommerce').'" '
-            .'autocomplete="off">';
-        echo '</div>';
-    }
-
     private static function submitButton(string $label): void
     {
         echo '<p><button type="submit" class="button button-primary">'.esc_html($label).'</button></p>';
@@ -578,6 +595,13 @@ final class WizardPage
             .checked($integration->syncRefunds(), true, false).'> '
             .esc_html__('Book refunds as credit notes in Minox', 'kb-data-connector-for-woocommerce').'</label></p>';
         echo '</div>';
+    }
+
+    private static function postedCredential(string $field): string
+    {
+        $value = $_POST[$field] ?? '';
+
+        return is_string($value) ? trim(wp_unslash($value)) : '';
     }
 
     private static function postedSyncRefunds(): string

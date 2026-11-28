@@ -568,3 +568,11 @@ msgstr "WooCommerce rondt de btw af op subtotaalniveau in plaats van per regel. 
 #: src/Setup/TaxRoundingNotice.php:21
 msgid "Open the tax settings"
 msgstr "Naar de belastinginstellingen"
+
+#: src/Setup/WizardPage.php
+msgid "Test connection"
+msgstr "Verbinding testen"
+
+#: src/Setup/WizardPage.php
+msgid "The saved Client ID and Client Secret can no longer be read, usually because the security keys in wp-config.php were changed. Nothing is sent to Minox until you enter them again."
+msgstr "De opgeslagen Client ID en Client Secret kunnen niet meer worden gelezen, meestal omdat de beveiligingssleutels in wp-config.php zijn gewijzigd. Er wordt niets naar Minox verstuurd totdat je ze opnieuw invult."

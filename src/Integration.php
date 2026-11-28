@@ -9,6 +9,7 @@ use MinoxWooCommerce\Security\CredentialCipher;
 use MinoxWooCommerce\Setup\WizardPage;
 use MinoxWooCommerce\Sync\IntegrationSettings;
 use MinoxWooCommerce\Sync\VatNumberResolver;
+use RuntimeException;
 use WC_Integration;
 
 final class Integration extends WC_Integration implements IntegrationSettings
@@ -20,6 +21,8 @@ final class Integration extends WC_Integration implements IntegrationSettings
     private const array ENCRYPTED_FIELDS = ['client_id', 'client_secret'];
 
     private const array LOCAL_HOSTS = ['localhost', '127.0.0.1', '[::1]', 'host.docker.internal'];
+
+    private bool $unreadableCredentials = false;
 
     public static function baseUri(): ?string
     {
@@ -101,12 +104,23 @@ final class Integration extends WC_Integration implements IntegrationSettings
 
             if (!CredentialCipher::isEncrypted($this->settings[$field])) {
                 $needsMigration = true;
+                continue;
             }
 
-            $this->settings[$field] = CredentialCipher::decrypt($this->settings[$field]);
+            try {
+                $decrypted = CredentialCipher::decrypt($this->settings[$field]);
+            } catch (RuntimeException) {
+                $decrypted = '';
+            }
+
+            if ($decrypted === '') {
+                $this->unreadableCredentials = true;
+            }
+
+            $this->settings[$field] = $decrypted;
         }
 
-        if ($needsMigration) {
+        if ($needsMigration && !$this->unreadableCredentials) {
             update_option($this->get_option_key(), $this->encryptSettings($this->settings));
         }
     }
@@ -133,6 +147,11 @@ final class Integration extends WC_Integration implements IntegrationSettings
         echo '<p>'.esc_html__('The settings of this connector are managed on their own page.', 'kb-data-connector-for-woocommerce').'</p>';
         echo '<p><a class="button button-primary" href="'.esc_url(WizardPage::settingsUrl()).'">'
             .esc_html__('Go to the Minox Connector settings', 'kb-data-connector-for-woocommerce').'</a></p>';
+    }
+
+    public function hasUnreadableCredentials(): bool
+    {
+        return $this->unreadableCredentials;
     }
 
     public function isConfigured(): bool

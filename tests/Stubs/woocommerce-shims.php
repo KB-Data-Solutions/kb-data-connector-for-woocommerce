@@ -298,6 +298,33 @@ if (!class_exists('WC_Tax', false)) {
 if (!class_exists('WC_Integration', false)) {
     abstract class WC_Integration
     {
+        public string $id = '';
+
+        public string $method_title = '';
+
+        public string $method_description = '';
+
+        /** @var array<string, mixed> */
+        public array $settings = [];
+
+        /** @var array<string, mixed> */
+        public array $form_fields = [];
+
+        public function get_option_key(): string
+        {
+            return 'woocommerce_'.$this->id.'_settings';
+        }
+
+        public function init_settings(): void
+        {
+            $settings = get_option($this->get_option_key(), []);
+            $this->settings = is_array($settings) ? $settings : [];
+        }
+
+        public function get_option(string $key, mixed $empty_value = null): mixed
+        {
+            return $this->settings[$key] ?? $empty_value;
+        }
     }
 }
 
