@@ -1,5 +1,12 @@
 # Changelog
 
+## [0.12.0](https://github.com/KB-Data-Solutions/kb-data-connector-for-woocommerce/compare/v0.11.0...v0.12.0) (2026-11-28)
+
+
+### Features
+
+* warn in the wizard and settings when WooCommerce rounds VAT at subtotal level ([eca45b9](https://github.com/KB-Data-Solutions/kb-data-connector-for-woocommerce/commit/eca45b9cfb7288aab99d95f55f13fbc75772162a))
+
 ## [0.11.0](https://github.com/KB-Data-Solutions/kb-data-connector-for-woocommerce/compare/v0.10.0...v0.11.0) (2026-11-24)
 
 
