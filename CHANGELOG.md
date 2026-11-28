@@ -1,5 +1,12 @@
 # Changelog
 
+## [0.12.1](https://github.com/KB-Data-Solutions/kb-data-connector-for-woocommerce/compare/v0.12.0...v0.12.1) (2026-11-28)
+
+
+### Bug Fixes
+
+* never send stored credentials to the browser and log sync failures ([9f8d456](https://github.com/KB-Data-Solutions/kb-data-connector-for-woocommerce/commit/9f8d456662ed005f48dec84f298776f4ff0e3037))
+
 ## [0.12.0](https://github.com/KB-Data-Solutions/kb-data-connector-for-woocommerce/compare/v0.11.0...v0.12.0) (2026-11-28)
 
 
